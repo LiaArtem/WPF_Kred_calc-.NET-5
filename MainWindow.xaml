@@ -1,0 +1,258 @@
+﻿<Window x:Class="WPF_Kred_calc.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Kred_calc"
+        mc:Ignorable="d"
+        Title="Кредитный калькулятор" Height="670" Width="1000" WindowStartupLocation="CenterScreen" Icon="icon.ico">
+
+    <Window.Resources>
+        <Style x:Key="RightAlignedCell" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+
+        <Style x:Key="CenterHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="365"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="8*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Условия кредитования" Margin="5,0,5,5" Grid.RowSpan="2">
+            <Canvas>
+                <Label Content="Дата оформления кредита" Canvas.Left="5" Canvas.Top="0"/>
+                <DatePicker x:Name="date_cred" Canvas.Left="220" Canvas.Top="0" MinWidth="120" Text="26.12.2019"/>
+                <Label Content="Стоимость" Canvas.Left="5" Canvas.Top="25"/>
+                <ComboBox x:Name="curr_code" Canvas.Left ="75" Canvas.Top="30" MinWidth="50" SelectedIndex="0" SelectionChanged="Curr_code_SelectedIndexChanged">
+                    <ComboBoxItem Content="UAH"/>
+                    <ComboBoxItem Content="USD"/>
+                    <ComboBoxItem Content="EUR"/>
+                    <ComboBoxItem Content="GBP"/>
+                </ComboBox>
+                <TextBox x:Name="summa" Canvas.Left ="135" Canvas.Top="30" MinWidth="75" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                <TextBox x:Name="kurs" Canvas.Left ="215" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                <TextBox x:Name="summa_ekv" Canvas.Left ="265" Canvas.Top="30" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" IsEnabled="False"/>
+                <Label Content="Первоначальный взнос, %" Canvas.Left="5" Canvas.Top="50"/>
+                <TextBox x:Name="proc_perv_vznos" Canvas.Left ="185" Canvas.Top="55" MinWidth="75" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                <TextBox x:Name="perv_vznos" Canvas.Left ="265" Canvas.Top="55" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                <Button x:Name="button_recalc" Content="Пересчитать" Canvas.Left ="10" Canvas.Top="80" MinWidth="150" Click="Button_recalcClick"/>
+                <Label Content="Сумма кредита" Canvas.Left="170" Canvas.Top="75"/>
+                <TextBox x:Name="sum_kred" Canvas.Left ="265" Canvas.Top="80" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" IsEnabled="False"/>
+                <CheckBox x:Name="check_recalc" Content="Расчет по сумме/% (Да/Нет)" Canvas.Left ="10" Canvas.Top="105" MinWidth="80" Click="Check_recalcClick"/>
+                <GroupBox Header="Льготные условия" Canvas.Left ="5" Canvas.Top="120" MinWidth="340" MinHeight="50">
+                    <Canvas>
+                        <Label Content="% ставка" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBox x:Name="priv_proc_stavka" Canvas.Left ="60" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label Content="Период (мес.)" Canvas.Left="100" Canvas.Top="0"/>
+                        <TextBox x:Name="priv_srok_kred" Canvas.Left ="185" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Priv_srok_kredTextChanged"/>
+                        <TextBox x:Name="priv_srok_kred_year" Canvas.Left ="230" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <Label Content="(лет)" Canvas.Left="270" Canvas.Top="0"/>
+                    </Canvas>
+                </GroupBox>
+                <GroupBox Header="Обычные условия" Canvas.Left ="5" Canvas.Top="170" MinWidth="340" MinHeight="50">
+                    <Canvas>
+                        <Label Content="% ставка" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBox x:Name="proc_stavka" Canvas.Left ="60" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label Content="Период (мес.)" Canvas.Left="100" Canvas.Top="0"/>
+                        <TextBox x:Name="srok_kred" Canvas.Left ="185" Canvas.Top="4" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kredTextChanged"/>
+                        <TextBox x:Name="srok_kred_year" Canvas.Left ="230" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <Label Content="(лет)" Canvas.Left="270" Canvas.Top="0"/>
+                    </Canvas>
+                </GroupBox>
+                <Label Content="Форма погашения" Canvas.Left="5" Canvas.Top="220"/>
+                <ComboBox x:Name="type_proc" Canvas.Left ="115" Canvas.Top="225" MinWidth="100" SelectedIndex="0" SelectionChanged="Type_proc_SelectedIndexChanged">
+                    <ComboBoxItem Content="классика"/>
+                    <ComboBoxItem Content="аннуитетная"/>
+                    <ComboBoxItem Content="рассрочка"/>
+                </ComboBox>
+                <Label Content="Тип" Canvas.Left="215" Canvas.Top="220"/>
+                <ComboBox x:Name="type_annuitet" Canvas.Left ="245" Canvas.Top="225" MinWidth="90" SelectedIndex="0">
+                    <ComboBoxItem Content="30/360"/>
+                    <ComboBoxItem Content="факт/360"/>
+                    <ComboBoxItem Content="факт/факт"/>
+                </ComboBox>
+                <GroupBox x:Name="GroupBox_rasrochka" Header="Досрочное погашение" Canvas.Left ="5" Canvas.Top="250" MinWidth="340" MinHeight="75">
+                    <Canvas>
+                        <Label Content="Сумма платежей ручная" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBox x:Name="sum_plat" Canvas.Left ="150" Canvas.Top="5" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                        <Label Content="Новый срок кредита (мес.)" Canvas.Left="0" Canvas.Top="25"/>
+                        <TextBox x:Name="srok_kred_new" Canvas.Left ="165" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kred_newTextChanged"/>
+                        <TextBox x:Name="srok_kred_year_new" Canvas.Left ="210" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <Label Content="(лет)" Canvas.Left="250" Canvas.Top="25"/>
+                    </Canvas>
+                </GroupBox>
+                <GroupBox Header="Досрочное погашение" Canvas.Left ="5" Canvas.Top="325" MinWidth="340" MinHeight="65">
+                    <Canvas>
+                        <Label Content="Нач.курс" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_start" Canvas.Left ="5" Canvas.Top="20" MinWidth="45" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_0" Content="2019" Canvas.Left="55" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_year_0" Canvas.Left ="55" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_1" Content="2020" Canvas.Left="100" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_year_1" Canvas.Left ="100" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_2" Content="2021" Canvas.Left="145" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_year_2" Canvas.Left ="145" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_3" Content="2022" Canvas.Left="190" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_year_3" Canvas.Left ="190" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_4" Content="2023" Canvas.Left="235" Canvas.Top="0"/>
+                        <TextBox x:Name="kurs_year_4" Canvas.Left ="235" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <Label x:Name="year_5" Content="Коэф.от" Canvas.Left="275" Canvas.Top="0"/>
+                        <TextBox x:Name="koef_otsech" Canvas.Left ="280" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right" Text = "1"/>
+                    </Canvas>
+                </GroupBox>
+                <GroupBox Header="Дополнительные расходы" Canvas.Left ="5" Canvas.Top="390" MinWidth="340" MinHeight="210">
+                    <Canvas>
+                        <TabControl Canvas.Left ="5" Canvas.Top="0" MinWidth="315" MinHeight="160">
+                            <TabItem Header="Итоги">
+                                <Grid>
+                                    <Canvas>
+                                        <Label Content="Банк" Canvas.Left="0" Canvas.Top="0"/>
+                                        <TextBox x:Name="bank_itog" Canvas.Right ="10" Canvas.Top="5" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" Text = "0,00" IsEnabled="False"/>
+                                        <Label Content="Страхование" Canvas.Left="0" Canvas.Top="25"/>
+                                        <TextBox x:Name="strax_itog" Canvas.Right ="10" Canvas.Top="30" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" Text = "0,00" IsEnabled="False"/>
+                                        <Label Content="Оформление" Canvas.Left="0" Canvas.Top="50"/>
+                                        <TextBox x:Name="notar_itog" Canvas.Right ="10" Canvas.Top="55" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" Text = "0,00" IsEnabled="False"/>
+                                        <Label Content="Прочие" Canvas.Left="0" Canvas.Top="75"/>
+                                        <TextBox x:Name="rieltor_itog" Canvas.Right ="10" Canvas.Top="80" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" Text = "0,00" IsEnabled="False"/>
+                                        <Label Content="Всего" Canvas.Left="0" Canvas.Top="100" FontWeight="Bold"/>
+                                        <TextBox x:Name="sum_dop_plat" Canvas.Right ="10" Canvas.Top="105" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                                    </Canvas>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Банк">
+                                <Grid>
+                                    <Canvas>
+                                        <Label x:Name="bank_komiss_1_text" Content="Комиссия за обслуж." Canvas.Left="0" Canvas.Top="0"/>
+                                        <TextBox x:Name="bank_komiss_1" Canvas.Right ="10" Canvas.Top="5" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="bank_komiss_2_text" Content="Ежемесячная комиссия" Canvas.Left="0" Canvas.Top="25"/>
+                                        <TextBox x:Name="bank_komiss_2" Canvas.Right ="10" Canvas.Top="30" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                    </Canvas>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Страхование">
+                                <Grid>
+                                    <Canvas>
+                                        <Label x:Name="stra_komiss_1_text" Content="Предмета ипотеки" Canvas.Left="0" Canvas.Top="0"/>
+                                        <TextBox x:Name="stra_komiss_1" Canvas.Right ="10" Canvas.Top="5" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="stra_komiss_2_text" Content="Страхование жизни" Canvas.Left="0" Canvas.Top="25"/>
+                                        <TextBox x:Name="stra_komiss_2" Canvas.Right ="10" Canvas.Top="30" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="stra_komiss_3_text" Content="От нещасного случая" Canvas.Left="0" Canvas.Top="50"/>
+                                        <TextBox x:Name="stra_komiss_3" Canvas.Right ="10" Canvas.Top="55" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                    </Canvas>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Оформление">
+                                <Grid>
+                                    <Canvas>
+                                        <Label x:Name="nota_komiss_1_text" Content="Внес.реестр залог. имущ." Canvas.Left="0" Canvas.Top="0"/>
+                                        <TextBox x:Name="nota_komiss_1" Canvas.Right ="10" Canvas.Top="5" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="nota_komiss_2_text" Content="Оформление дог. залога" Canvas.Left="0" Canvas.Top="25"/>
+                                        <TextBox x:Name="nota_komiss_2" Canvas.Right ="10" Canvas.Top="30" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="nota_komiss_3_text" Content="Госпошлина" Canvas.Left="0" Canvas.Top="50"/>
+                                        <TextBox x:Name="nota_komiss_3" Canvas.Right ="10" Canvas.Top="55" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="nota_komiss_4_text" Content="Пенсионный фонд" Canvas.Left="0" Canvas.Top="75"/>
+                                        <TextBox x:Name="nota_komiss_4" Canvas.Right ="10" Canvas.Top="80" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="nota_komiss_5_text" Content="Оформ.догов.пок-продаж" Canvas.Left="0" Canvas.Top="100"/>
+                                        <TextBox x:Name="nota_komiss_5" Canvas.Right ="10" Canvas.Top="105" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                    </Canvas>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Прочие">
+                                <Grid>
+                                    <Canvas>
+                                        <Label x:Name="riel_komiss_1_text" Content="Оценка недвижимости" Canvas.Left="0" Canvas.Top="0"/>
+                                        <TextBox x:Name="riel_komiss_1" Canvas.Right ="10" Canvas.Top="5" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="riel_komiss_2_text" Content="Консультация и оформл." Canvas.Left="0" Canvas.Top="25"/>
+                                        <TextBox x:Name="riel_komiss_2" Canvas.Right ="10" Canvas.Top="30" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                        <Label x:Name="riel_komiss_3_text" Content="Регистрация дог. в БТИ" Canvas.Left="0" Canvas.Top="50"/>
+                                        <TextBox x:Name="riel_komiss_3" Canvas.Right ="10" Canvas.Top="55" MinWidth="120" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                                    </Canvas>
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
+                        <Label Content="Переплата" Canvas.Left="5" Canvas.Top="160" FontWeight="Bold"/>
+                        <TextBox x:Name="pereplata" Canvas.Right ="20" Canvas.Top="165" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                    </Canvas>
+                </GroupBox>
+            </Canvas>
+        </GroupBox>
+
+        <Grid Grid.Column="1" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text = "Тип расчета:" Grid.Column ="0" Grid.Row="0" Margin="5, 5, 0, 0" VerticalAlignment="Center"/>
+            <ComboBox x:Name="type_rasch" Grid.Column ="1" Grid.Row="0" Margin="5, 5, 5, 0" SelectionChanged="Type_rasch_SelectedIndexChanged"/>
+            <DataGrid x:Name="DataGrid1" Grid.Column ="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0, 5, 5, 5" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="IsHitTestVisible" Value="False"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TColorType}" Value="MistyRose">
+                                <Setter Property="Background" Value="MistyRose"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding TColorType}" Value="AliceBlue">
+                                <Setter Property="Background" Value="AliceBlue"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding TColorType}" Value="LightGreen">
+                                <Setter Property="Background" Value="LightGreen"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding TColorType}" Value="LightBlue">
+                                <Setter Property="Background" Value="LightBlue"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding Path=TDate}" MinWidth="70" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Долг" Binding="{Binding Path=TDolg}" MinWidth="90" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.%" Binding="{Binding Path=TPlatInt}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.тело" Binding="{Binding Path=TPlat}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Переплата" Binding="{Binding Path=TPereplata}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.доп." Binding="{Binding Path=TPlatDop}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Итого" Binding="{Binding Path=TItogo}" MinWidth="90" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2">
+                <Run Text="%S - % с суммы кредита"/>
+                <Run Text="%F - % от стоимости квартиры"/>
+                <LineBreak/>
+                <Run Text="%YEAR - ежегодно"/>
+                <Run Text="%MONTH - ежемесячно"/>
+            </TextBlock>
+            <Button x:Name="Button_ExportCSV" Content="Экспорт в CSV" Grid.Column="0" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_ExportCSVClick"/>
+            <Button x:Name="Button_update" Content="Обновить" Grid.Column="2" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_updateClick"/>
+            <Button x:Name="Button_xml_file" Content="XML файл" Grid.Column="3" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_xml_fileClick"/>
+            <Button x:Name="Button_calc" Content="Расчитать" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_calcClick"/>
+        </Grid>
+    </Grid>
+</Window>    
+
+    
