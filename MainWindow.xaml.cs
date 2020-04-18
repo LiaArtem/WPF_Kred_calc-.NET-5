@@ -86,7 +86,6 @@ namespace WPF_Kred_calc
                 DataGrid1.Items.Add(new TDataGridCol { TDate = "", TDolg = "", TPlatInt = "", TPlat = "",
                     TPereplata = "", TPlatDop = "", TItogo = "", TColorType = ""});
             }
-
         }
 
         #region Other
@@ -749,7 +748,12 @@ namespace WPF_Kred_calc
             Dop_plat();
 
             // чистка таблицы
-            this.DataGrid1.Items.Clear();
+            DataGrid1.Items.Clear();
+            for (int i = 0; i <= 50; i++)
+            {
+                DataGrid1.Items.Add(new TDataGridCol { TDate = "", TDolg = "", TPlatInt = "", TPlat = "",
+                    TPereplata = "", TPlatDop = "", TItogo = "", TColorType = ""});
+            }
         }
 
         // XML файл
