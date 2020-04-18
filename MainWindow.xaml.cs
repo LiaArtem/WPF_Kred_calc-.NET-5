@@ -78,6 +78,15 @@ namespace WPF_Kred_calc
             is_program_loading = false;
 
             Dop_plat();
+
+            // заполняем таблицу пустыми строками
+            DataGrid1.Items.Clear();
+            for (int i = 0; i <= 50; i++)
+            {
+                DataGrid1.Items.Add(new TDataGridCol { TDate = "", TDolg = "", TPlatInt = "", TPlat = "",
+                    TPereplata = "", TPlatDop = "", TItogo = "", TColorType = ""});
+            }
+
         }
 
         #region Other
