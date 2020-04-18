@@ -416,6 +416,7 @@ namespace WPF_Kred_calc
                         this.curr_code.Text = m_curr_code;
                         this.priv_proc_stavka.Text = node.SelectSingleNode("./priv_proc_stavka").InnerText;
                         this.priv_srok_kred.Text = node.SelectSingleNode("./priv_srok").InnerText;
+                        this.proc_stavka.Text = node.SelectSingleNode("./proc_stavka").InnerText;
                         this.summa.Text = node.SelectSingleNode("./summa").InnerText;
                         this.proc_perv_vznos.Text = node.SelectSingleNode("./perv_vznos_proc").InnerText;
                         this.perv_vznos.Text = node.SelectSingleNode("./perv_vznos").InnerText;
@@ -820,6 +821,7 @@ namespace WPF_Kred_calc
             double m_koef_otsech = String_to_Double(this.koef_otsech.Text);
             // единоразовые
             double m_sum_one = String_to_Double(this.sum_dop_plat.Text);
+            string mTColorType;
 
             if (m_sum_kred == 0)
             {
@@ -881,6 +883,11 @@ namespace WPF_Kred_calc
                         }
                         // учет ежемесяных
                         double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
+
+                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
+                        if (year_int % 2 == 0) mTColorType = "MistyRose";
+                        else mTColorType = "AliceBlue";
+
                         // добавляем строку          
                         DataGrid1.Items.Add(new TDataGridCol
                         {
@@ -890,7 +897,8 @@ namespace WPF_Kred_calc
                             TPlat = Double_to_String(annuitet - summ_pro),
                             TPereplata = Double_to_String(sum_pereplata),
                             TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month)
+                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
+                            TColorType = mTColorType
                         });
 
                         // +1 месяц
@@ -916,13 +924,15 @@ namespace WPF_Kred_calc
                         TPlat = Double_to_String(m_sum_kred),
                         TPereplata = "",
                         TPlatDop = Double_to_String(summ_dop),
-                        TItogo = Double_to_String(n_ob)
+                        TItogo = Double_to_String(n_ob),
+                        TColorType = "LightGreen"
                     });
                     // Переплата
                     DataGrid1.Items.Add(new TDataGridCol
                     {
                         TDate = "Переплата:",
-                        TItogo = Double_to_String(n_pr)
+                        TItogo = Double_to_String(n_pr),
+                        TColorType = "LightBlue"
                     });
                     this.pereplata.Text = Double_to_String(n_pr + summ_dop);
                 }
@@ -954,6 +964,11 @@ namespace WPF_Kred_calc
                         }
                         // учет ежемесяных
                         double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
+
+                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
+                        if (year_int % 2 == 0) mTColorType = "MistyRose";
+                        else mTColorType = "AliceBlue";
+
                         // добавляем строку                                                
                         DataGrid1.Items.Add(new TDataGridCol
                         {
@@ -963,7 +978,8 @@ namespace WPF_Kred_calc
                             TPlat = Double_to_String(annuitet - summ_pro),
                             TPereplata = "0.00",
                             TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month)
+                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
+                            TColorType = mTColorType
                         });
 
                         // +1 месяц
@@ -995,6 +1011,11 @@ namespace WPF_Kred_calc
                         }
                         // учет ежемесяных
                         double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
+
+                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
+                        if (year_int % 2 == 0) mTColorType = "MistyRose";
+                        else mTColorType = "AliceBlue";
+
                         // добавляем строку                                                
                         DataGrid1.Items.Add(new TDataGridCol
                         {
@@ -1004,7 +1025,8 @@ namespace WPF_Kred_calc
                             TPlat = Double_to_String(annuitet - summ_pro),
                             TPereplata = "0.00",
                             TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month)
+                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
+                            TColorType = mTColorType
                         });
 
                         // +1 месяц
@@ -1026,13 +1048,15 @@ namespace WPF_Kred_calc
                         TPlat = Double_to_String(m_sum_kred),
                         TPereplata = "",
                         TPlatDop = Double_to_String(summ_dop),
-                        TItogo = Double_to_String(n_ob)
+                        TItogo = Double_to_String(n_ob),
+                        TColorType = "LightGreen"
                     });
                     // Переплата
                     DataGrid1.Items.Add(new TDataGridCol
                     {
                         TDate = "Переплата:",
-                        TItogo = Double_to_String(n_pr)
+                        TItogo = Double_to_String(n_pr),
+                        TColorType = "LightBlue"
                     });
                     this.pereplata.Text = Double_to_String(n_pr + summ_dop);
                 }
@@ -1169,6 +1193,10 @@ namespace WPF_Kred_calc
                 {
                     if (mass_num[2, i - 1] == 0) { break; }
 
+                    int year_int = Convert.ToInt32(mass_date[i - 1].Substring(0, 4));
+                    if (year_int % 2 == 0) mTColorType = "MistyRose";
+                    else mTColorType = "AliceBlue";
+
                     // добавляем строку                                                
                     DataGrid1.Items.Add(new TDataGridCol
                     {
@@ -1178,7 +1206,8 @@ namespace WPF_Kred_calc
                         TPlat = Double_to_String(mass_num[2, i - 1]),
                         TPereplata = Double_to_String(mass_num[5, i - 1]),
                         TPlatDop = Double_to_String(mass_num[3, i - 1]),
-                        TItogo = Double_to_String(mass_num[4, i - 1])
+                        TItogo = Double_to_String(mass_num[4, i - 1]),
+                        TColorType = mTColorType
                     });
                     srok_new += 1;
                 }
@@ -1195,13 +1224,15 @@ namespace WPF_Kred_calc
                     TPlat = Double_to_String(n_cred),
                     TPereplata = Double_to_String(n_perepl),
                     TPlatDop = Double_to_String(summ_dop),
-                    TItogo = Double_to_String(n_ob)
+                    TItogo = Double_to_String(n_ob),
+                    TColorType = "LightGreen"
                 });
                 // Переплата
                 DataGrid1.Items.Add(new TDataGridCol
                 {
                     TDate = "Переплата:",
-                    TItogo = Double_to_String(Round(n_pr + summ_dop, 2))
+                    TItogo = Double_to_String(Round(n_pr + summ_dop, 2)),
+                    TColorType = "LightBlue"
                 });
                 this.pereplata.Text = Double_to_String(n_pr + summ_dop);
             }
@@ -1344,8 +1375,7 @@ namespace WPF_Kred_calc
                     m_sum_one = 0;
                     if (summ < 0) { break; }
                 }
-                //
-                string mTColorType;
+                //                
                 srok_new = 0;
                 for (i = 1; i <= m_srok; i++)
                 {

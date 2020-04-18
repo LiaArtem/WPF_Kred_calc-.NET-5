@@ -217,13 +217,13 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Дата" Binding="{Binding Path=TDate}" MinWidth="70" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Долг" Binding="{Binding Path=TDolg}" MinWidth="90" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Плат.%" Binding="{Binding Path=TPlatInt}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Плат.тело" Binding="{Binding Path=TPlat}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Переплата" Binding="{Binding Path=TPereplata}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Плат.доп." Binding="{Binding Path=TPlatDop}" MinWidth="85" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
-                    <DataGridTextColumn Header="Итого" Binding="{Binding Path=TItogo}" MinWidth="90" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding Path=TDate}" MinWidth="70" Width="*" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Долг" Binding="{Binding Path=TDolg}" MinWidth="90" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.%" Binding="{Binding Path=TPlatInt}" MinWidth="85" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.тело" Binding="{Binding Path=TPlat}" MinWidth="85" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Переплата" Binding="{Binding Path=TPereplata}" MinWidth="85" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Плат.доп." Binding="{Binding Path=TPlatDop}" MinWidth="85" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
+                    <DataGridTextColumn Header="Итого" Binding="{Binding Path=TItogo}" MinWidth="90" Width="*" ElementStyle="{StaticResource RightAlignedCell}" HeaderStyle="{StaticResource CenterHeaderStyle}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
