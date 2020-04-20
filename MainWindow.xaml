@@ -15,6 +15,20 @@
         <Style x:Key="CenterHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
+
+        <ControlTemplate TargetType="Button" x:Key="btTemplate">
+            <Border CornerRadius="5"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Background="{TemplateBinding Background}"
+                    Height="{TemplateBinding Height}"
+                    Width="{TemplateBinding Width}" >
+                <ContentControl Margin="{TemplateBinding Padding}"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Content="{TemplateBinding Content}" />
+            </Border>
+        </ControlTemplate>
     </Window.Resources>
 
     <Grid>
@@ -247,10 +261,10 @@
                 <Run Text="%YEAR - ежегодно"/>
                 <Run Text="%MONTH - ежемесячно"/>
             </TextBlock>
-            <Button x:Name="Button_ExportCSV" Content="Экспорт в CSV" Grid.Column="0" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_ExportCSVClick"/>
-            <Button x:Name="Button_update" Content="Обновить" Grid.Column="2" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_updateClick"/>
-            <Button x:Name="Button_xml_file" Content="XML файл" Grid.Column="3" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_xml_fileClick"/>
-            <Button x:Name="Button_calc" Content="Расчитать" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_calcClick"/>
+            <Button x:Name="Button_ExportCSV" Template="{StaticResource btTemplate}" Content="Экспорт в CSV" Grid.Column="0" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_ExportCSVClick"/>
+            <Button x:Name="Button_update" Template="{StaticResource btTemplate}" Content="Обновить" Grid.Column="2" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_updateClick"/>
+            <Button x:Name="Button_xml_file" Template="{StaticResource btTemplate}" Content="XML файл" Grid.Column="3" Grid.Row="0" Margin="5, 5, 5, 5" Click="Button_xml_fileClick"/>
+            <Button x:Name="Button_calc" Template="{StaticResource btTemplate}" Content="Расчитать" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Margin="5, 5, 5, 5" Click="Button_calcClick"/>
         </Grid>
     </Grid>
 </Window>    
