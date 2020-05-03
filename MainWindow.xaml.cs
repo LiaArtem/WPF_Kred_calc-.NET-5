@@ -11,16 +11,15 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.Win32;
-using System.Data;
-using System.Windows.Data;
-using System.Windows.Media;
+using System.Text.Json;
 
 namespace WPF_Kred_calc
 {
     class Currency
     {
         public double RATE { get; set; }
-        public string CC { get; set; }        
+        public double FORC { get; set; } = 1;
+        public string KURS_CODE { get; set; }        
     }
 
     public class TDataGridCol
@@ -84,7 +83,7 @@ namespace WPF_Kred_calc
             for (int i = 0; i <= 50; i++)
             {
                 DataGrid1.Items.Add(new TDataGridCol { TDate = "", TDolg = "", TPlatInt = "", TPlat = "",
-                    TPereplata = "", TPlatDop = "", TItogo = "", TColorType = ""});
+                    TPereplata = "", TPlatDop = "", TItogo = "", TColorType = "" });
             }
         }
 
@@ -159,7 +158,7 @@ namespace WPF_Kred_calc
         }
 
         public string Get_date_month(DateTime date_in)
-        {            
+        {
             string mon = date_in.Month.ToString("00");
             return date_in.Year + "." + mon;
         }
@@ -269,11 +268,47 @@ namespace WPF_Kred_calc
             this.sum_kred.Text = Double_to_String(m_sum_cred);
         }
 
-    // Получить курс НБУ
-    public double GetKursNbu(String mCurrCode, DateTime mDate)
-        {                       
+        // Получить курс НБУ
+        public double GetKursNbu(String mCurrCode, DateTime mDate)
+        {
+            String settings_data_format = "xml"; String settings_file_name = "";  String settings_url = "";
+            String settings_char_curr_code = ""; String settings_char_kurs = "";
+            String settings_char_forc = ""; String settings_char_format_date = "";
             String mPath = tec_kat_temp;
-            String mPathXml = mPath + "\\" + mDate.ToString("yyyyMMdd") + ".xml";
+            String mPathOut;
+
+            // ищем файл настроек
+            String mPathXml_Settings = tec_kat + "\\settings.xml";
+            FileInfo fileInf_Settings = new FileInfo(mPathXml_Settings);
+            if (fileInf_Settings.Exists)
+            {
+                try
+                {
+                    // чтение XML файла    
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(mPathXml_Settings);
+                    foreach (XmlNode xnode in xDoc.DocumentElement.GetElementsByTagName("kurs_nbu").Item(0))
+                    {
+                        if (xnode.Name == "data_format") { settings_data_format = xnode.InnerText; }
+                        else if (xnode.Name == "file_name") { settings_file_name = xnode.InnerText; }
+                        else if (xnode.Name == "url") { settings_url = xnode.InnerText; }
+                        else if (xnode.Name == "char_curr_code") { settings_char_curr_code = xnode.InnerText; }
+                        else if (xnode.Name == "char_kurs") { settings_char_kurs = xnode.InnerText; }
+                        else if (xnode.Name == "char_forc") { settings_char_forc = xnode.InnerText; }
+                        else if (xnode.Name == "char_format_date") { settings_char_format_date = xnode.InnerText; }
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBoxError("Ошибка !!! не найден файл настроек" + "\n" + "PATH=" + "\n" + mPathXml_Settings + "\n" + "Message=" + "\n" + e.Message);
+                    return 1;
+                }
+            }
+            else
+            {
+                MessageBoxError("Ошибка !!! не найден файл настроек " + mPathXml_Settings);
+                return 1;
+            }
 
             // если папка не существует, создаем
             DirectoryInfo dirInfo = new DirectoryInfo(mPath);
@@ -282,43 +317,43 @@ namespace WPF_Kred_calc
                 dirInfo.Create();
             }
 
-            FileInfo fileInf = new FileInfo(mPathXml);
-            
+            mPathOut = mPath + "\\" + settings_file_name  + mDate.ToString("yyyyMMdd") + "." + settings_data_format;
+            FileInfo fileInf = new FileInfo(mPathOut);
+
             // Если нет файла взять его с сайта
             if (!fileInf.Exists)
             {
-                string url_text = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?&date=%MDATE%";
-                url_text = url_text.Replace("%MDATE%", mDate.ToString("yyyyMMdd"));
+                settings_url = settings_url.Replace("%MDATE%", mDate.ToString(settings_char_format_date));
                 // чтение файла с НБУ                       
                 try
-                {                    
+                {
                     using (System.Net.WebClient wc = new System.Net.WebClient())
                     {
-                        string text = wc.DownloadString(url_text);
+                        string text = wc.DownloadString(settings_url);
                         // запись в файл
-                        using FileStream fstream = new FileStream(mPathXml, FileMode.Create);
+                        using FileStream fstream = new FileStream(mPathOut, FileMode.Create);
                         // преобразуем строку в байты                                                        
                         byte[] array = System.Text.Encoding.Default.GetBytes(text);
                         // запись массива байтов в файл
                         fstream.Write(array, 0, array.Length);
-                    }                                                                
+                    }
                     // перечитать созданный файл
-                    fileInf = new FileInfo(mPathXml);
+                    fileInf = new FileInfo(mPathOut);
                 }
                 catch (Exception e)
                 {
-                    MessageBoxError("Ошибка !!! курс с сайта НБУ загрузить не получилось !!!" + "\n" + "URL=" + "\n" + url_text + "\n" + "Message=" + "\n" + e.Message);
+                    MessageBoxError("Ошибка !!! курс с сайта НБУ загрузить не получилось !!!" + "\n" + "URL=" + "\n" + settings_url + "\n" + "Message=" + "\n" + e.Message);
                     return 1;
                 }
             }
 
-            if (fileInf.Exists)
+            if (fileInf.Exists && settings_data_format == "xml") 
             {
                 try
                 {
                     // чтение XML файла    
                     XmlDocument xDoc = new XmlDocument();
-                    xDoc.Load(mPathXml);
+                    xDoc.Load(mPathOut);
                     XmlElement xRoot = xDoc.DocumentElement;
                     List<Currency> currencyList = new List<Currency>();
                     // поиск строки с курсом
@@ -327,17 +362,18 @@ namespace WPF_Kred_calc
                         Currency currency = new Currency();
                         foreach (XmlNode childnode in xnode.ChildNodes)
                         {
-                            if (childnode.Name == "rate") { currency.RATE = String_to_Double(childnode.InnerText); }
-                            else if (childnode.Name == "cc") { currency.CC = childnode.InnerText; }                            
+                            if (childnode.Name == settings_char_kurs) { currency.RATE = String_to_Double(childnode.InnerText); }
+                            else if (childnode.Name == settings_char_forc) { currency.FORC = String_to_Double(childnode.InnerText); }
+                            else if (childnode.Name == settings_char_curr_code) { currency.KURS_CODE = childnode.InnerText; }                            
                             currencyList.Add(currency);
                         }
                     }
                         
                     foreach (Currency u in currencyList)
                     {
-                        if (u.CC == mCurrCode)
+                        if (u.KURS_CODE == mCurrCode)
                         {
-                            return u.RATE;
+                            return Round (u.RATE / u.FORC, 3);
                         }
                     }                        
                 }
@@ -347,8 +383,62 @@ namespace WPF_Kred_calc
                     return 1;
                 }
             }
+            
+            if (fileInf.Exists && settings_data_format == "json")
+            {
+                try
+                {
+                    // чтение JSON файла
+                    string JsonFile;
+                    using (FileStream fs = new FileStream(fileInf.FullName, FileMode.Open))
+                    {
+                        // преобразуем строку в байты
+                        byte[] array = new byte[fs.Length];
+                        // считываем данные
+                        fs.Read(array, 0, array.Length);
+                        // декодируем байты в строку
+                        JsonFile = System.Text.Encoding.Default.GetString(array);
+                    }
+
+                    JsonDocument document = JsonDocument.Parse(JsonFile);
+                    JsonElement root = document.RootElement;
+                    List<Currency> currencyList = new List<Currency>();
+                    foreach (JsonElement child in root.EnumerateArray())
+                    {
+                        Currency currency = new Currency();
+                        if (child.TryGetProperty(settings_char_kurs, out JsonElement gradeElement_RATE))
+                        {
+                            currency.RATE = gradeElement_RATE.GetDouble();
+                        }
+                        if (child.TryGetProperty(settings_char_forc, out JsonElement gradeElement_FORC))
+                        {
+                            currency.FORC = gradeElement_FORC.GetDouble();
+                        }
+                        if (child.TryGetProperty(settings_char_curr_code, out JsonElement gradeElement_KURS_CODE))
+                        {
+                            currency.KURS_CODE = gradeElement_KURS_CODE.GetString();
+                        }
+                        currencyList.Add(currency);
+                    }
+
+                    foreach (Currency u in currencyList)
+                    {
+                        if (u.KURS_CODE == mCurrCode)
+                        {
+                            return Round(u.RATE / u.FORC, 3);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBoxError("Ошибка !!! не найден курс !!!" + "\n" + "СС=" + "\n" + mCurrCode + "\n" + "Message=" + "\n" + e.Message);
+                    return 1;
+                }               
+            }
+            
             return 1;
         }
+
 
         // Поиск шаблонов
         public void Poisk_xml_files()
@@ -356,7 +446,7 @@ namespace WPF_Kred_calc
             DirectoryInfo dirInfo = new DirectoryInfo(tec_kat_ini);
             if (dirInfo.Exists)
             {
-                FileInfo[] listOfFiles = dirInfo.GetFiles("*.xml");
+                FileInfo[] listOfFiles = dirInfo.GetFiles("*.xml");                
                 type_ini_mas = new String[listOfFiles.Length];
                 file_path_ini_mas = new String[listOfFiles.Length];
                 int ii = 0;
