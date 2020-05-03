@@ -43,7 +43,7 @@
         <GroupBox Header="Условия кредитования" Margin="5,0,5,5" Grid.RowSpan="2">
             <Canvas>
                 <Label Content="Дата оформления кредита" Canvas.Left="5" Canvas.Top="0"/>
-                <DatePicker x:Name="date_cred" Canvas.Left="220" Canvas.Top="0" MinWidth="120" Text="26.12.2019"/>
+                <DatePicker x:Name="date_cred" Canvas.Left="220" Canvas.Top="0" MinWidth="120" Text="26.12.2019" SelectedDateChanged="Date_cred_SelectedDateChanged"/>
                 <Label Content="Стоимость" Canvas.Left="5" Canvas.Top="25"/>
                 <ComboBox x:Name="curr_code" Canvas.Left ="75" Canvas.Top="30" MinWidth="50" SelectedIndex="0" SelectionChanged="Curr_code_SelectedIndexChanged">
                     <ComboBoxItem Content="UAH"/>

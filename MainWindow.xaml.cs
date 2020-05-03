@@ -15,7 +15,7 @@ using System.Text.Json;
 
 namespace WPF_Kred_calc
 {
-    class Currency
+    public class Currency
     {
         public double RATE { get; set; }
         public double FORC { get; set; } = 1;
@@ -33,6 +33,28 @@ namespace WPF_Kred_calc
         public string TItogo { get; set; }
         public string TColorType { get; set; }
     }
+
+    public class CreateCurrencyList
+    {
+        private static List<Currency> currencyList = new List<Currency>();            
+        public static List<Currency> ReadList()
+        {
+            return currencyList;
+        }
+        public static void WriteList(List<Currency> value)
+        {
+            currencyList = value;
+        }
+        public static void ClearList()
+        {
+            currencyList = new List<Currency>();
+        }
+        public static bool IsExistsList()
+        {
+            if (currencyList.Count == 0) { return false; } else { return true; }
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -49,6 +71,8 @@ namespace WPF_Kred_calc
         public MainWindow()
         {
             InitializeComponent();
+
+            CreateCurrencyList.ClearList(); // обуление списка курсов валют
 
             // подписываем textBox на событие PreviewTextInput, с помощью которого можно обрабатывать вводимый текст
             summa.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
@@ -277,8 +301,19 @@ namespace WPF_Kred_calc
             String mPath = tec_kat_temp;
             String mPathOut;
 
+            if (CreateCurrencyList.IsExistsList()) // если список есть бере из него
+            {
+                foreach (Currency u in CreateCurrencyList.ReadList())
+                {
+                    if (u.KURS_CODE == mCurrCode)
+                    {
+                        return Round(u.RATE / u.FORC, 3);
+                    }
+                }
+            }
+
             // ищем файл настроек
-            String mPathXml_Settings = tec_kat + "\\settings.xml";
+                String mPathXml_Settings = tec_kat + "\\settings.xml";
             FileInfo fileInf_Settings = new FileInfo(mPathXml_Settings);
             if (fileInf_Settings.Exists)
             {
@@ -368,7 +403,8 @@ namespace WPF_Kred_calc
                             currencyList.Add(currency);
                         }
                     }
-                        
+
+                    CreateCurrencyList.WriteList(currencyList); // запись списка
                     foreach (Currency u in currencyList)
                     {
                         if (u.KURS_CODE == mCurrCode)
@@ -421,6 +457,7 @@ namespace WPF_Kred_calc
                         currencyList.Add(currency);
                     }
 
+                    CreateCurrencyList.WriteList(currencyList); // запись списка
                     foreach (Currency u in currencyList)
                     {
                         if (u.KURS_CODE == mCurrCode)
@@ -728,6 +765,17 @@ namespace WPF_Kred_calc
         }
         #endregion
 
+        // изменение даты оформления кредита
+        private void Date_cred_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (is_program_loading == true) { return; }
+
+            CreateCurrencyList.ClearList(); // обуление списка курсов валют
+            String m_curr_code = this.curr_code.Text;
+            // Расчет и установление курса и расчет эквивалента
+            Calc_set_kurs_text(m_curr_code, "");
+        }
+
         // изменение выбора кода валюты
         private void Curr_code_SelectedIndexChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -735,7 +783,7 @@ namespace WPF_Kred_calc
 
             ComboBox comboBox = (ComboBox)sender;
             ComboBoxItem selectedItem = (ComboBoxItem)comboBox.SelectedItem;
-
+            
             String m_curr_code = selectedItem.Content.ToString();
             // Расчет и установление курса и расчет эквивалента
             Calc_set_kurs_text(m_curr_code, "");
