@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Diagnostics;
 using Microsoft.Win32;
 using System.Text.Json;
+using System.Linq;
 
 namespace WPF_Kred_calc
 {
@@ -19,7 +20,7 @@ namespace WPF_Kred_calc
     {
         public double RATE { get; set; }
         public double FORC { get; set; } = 1;
-        public string KURS_CODE { get; set; }        
+        public string CURR_CODE { get; set; }        
     }
 
     public class TDataGridCol
@@ -303,17 +304,27 @@ namespace WPF_Kred_calc
 
             if (CreateCurrencyList.IsExistsList()) // если список есть бере из него
             {
-                foreach (Currency u in CreateCurrencyList.ReadList())
+                // LINQ расширение
+                return CreateCurrencyList.ReadList()
+                          .Where(t => t.CURR_CODE == mCurrCode)
+                          .Select(t => Round(t.RATE / t.FORC, 3)).OfType<double?>().FirstOrDefault() ?? 1.00;
+                // LINQ стандарт
+                /*double rez = (from t in CreateCurrencyList.ReadList()
+                              let KURS = Round(t.RATE / t.FORC, 3)
+                              where t.CURR_CODE == '1' + mCurrCode
+                              select new { KURS }
+                              ).Sum(t => t.KURS);*/                                
+                /*foreach (Currency u in CreateCurrencyList.ReadList())
                 {
                     if (u.KURS_CODE == mCurrCode)
                     {
                         return Round(u.RATE / u.FORC, 3);
                     }
-                }
+                }*/
             }
 
             // ищем файл настроек
-                String mPathXml_Settings = tec_kat + "\\settings.xml";
+            String mPathXml_Settings = tec_kat + "\\settings.xml";
             FileInfo fileInf_Settings = new FileInfo(mPathXml_Settings);
             if (fileInf_Settings.Exists)
             {
@@ -399,19 +410,23 @@ namespace WPF_Kred_calc
                         {
                             if (childnode.Name == settings_char_kurs) { currency.RATE = String_to_Double(childnode.InnerText); }
                             else if (childnode.Name == settings_char_forc) { currency.FORC = String_to_Double(childnode.InnerText); }
-                            else if (childnode.Name == settings_char_curr_code) { currency.KURS_CODE = childnode.InnerText; }                            
+                            else if (childnode.Name == settings_char_curr_code) { currency.CURR_CODE = childnode.InnerText; }                            
                             currencyList.Add(currency);
                         }
                     }
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
-                    foreach (Currency u in currencyList)
+                    // LINQ расширение
+                    return currencyList
+                              .Where(t => t.CURR_CODE == mCurrCode)
+                              .Select(t => Round(t.RATE / t.FORC, 3)).OfType<double?>().FirstOrDefault() ?? 1.00;
+                    /*foreach (Currency u in currencyList)
                     {
-                        if (u.KURS_CODE == mCurrCode)
+                        if (u.CURR_CODE == mCurrCode)
                         {
                             return Round (u.RATE / u.FORC, 3);
                         }
-                    }                        
+                    }*/
                 }
                 catch (Exception e)
                 {
@@ -452,19 +467,23 @@ namespace WPF_Kred_calc
                         }
                         if (child.TryGetProperty(settings_char_curr_code, out JsonElement gradeElement_KURS_CODE))
                         {
-                            currency.KURS_CODE = gradeElement_KURS_CODE.GetString();
+                            currency.CURR_CODE = gradeElement_KURS_CODE.GetString();
                         }
                         currencyList.Add(currency);
                     }
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
-                    foreach (Currency u in currencyList)
+                    // LINQ расширение
+                    return currencyList
+                              .Where(t => t.CURR_CODE == mCurrCode)
+                              .Select(t => Round(t.RATE / t.FORC, 3)).OfType<double?>().FirstOrDefault() ?? 1.00;                    
+                    /*foreach (Currency u in currencyList)
                     {
-                        if (u.KURS_CODE == mCurrCode)
+                        if (u.CURR_CODE == mCurrCode)
                         {
                             return Round(u.RATE / u.FORC, 3);
                         }
-                    }
+                    }*/
                 }
                 catch (Exception e)
                 {
