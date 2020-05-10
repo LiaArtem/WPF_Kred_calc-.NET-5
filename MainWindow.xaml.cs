@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Text.Json;
 using System.Linq;
+using System.Net;
 
 namespace WPF_Kred_calc
 {
@@ -373,7 +374,8 @@ namespace WPF_Kred_calc
                 // чтение файла с НБУ                       
                 try
                 {
-                    using (System.Net.WebClient wc = new System.Net.WebClient())
+                    ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    using (WebClient wc = new WebClient())
                     {
                         string text = wc.DownloadString(settings_url);
                         // запись в файл
