@@ -146,6 +146,11 @@ namespace WPF_Kred_calc
         // Преобразование числа в текст
         public String Double_to_String(double TextDouble, int midpoint = 2, string format = "#,0.00")
         {
+            if (midpoint == 3) { format = "#,0.000"; }
+            else if (midpoint == 4) { format = "#,0.0000"; }
+            else if (midpoint == 5) { format = "#,0.00000"; }
+            else if (midpoint == 6) { format = "#,0.000000"; }
+            else if (midpoint == 7) { format = "#,0.0000000"; }
             return Round(TextDouble, midpoint).ToString(format);
         }
 
@@ -285,10 +290,12 @@ namespace WPF_Kred_calc
             if (this.check_recalc.IsChecked == false)
             {
                 m_sum_cred = String_to_Double(this.summa_ekv.Text) - String_to_Double(this.summa_ekv.Text) * String_to_Double(this.proc_perv_vznos.Text) / 100;
+                this.perv_vznos.Text = Double_to_String(String_to_Double(this.summa_ekv.Text) * String_to_Double(this.proc_perv_vznos.Text) / 100);
             }
             else
             {
                 m_sum_cred = String_to_Double(this.summa_ekv.Text) - String_to_Double(this.perv_vznos.Text);
+                this.proc_perv_vznos.Text = Double_to_String(100.0 * String_to_Double(this.perv_vznos.Text) / String_to_Double(this.summa_ekv.Text), midpoint:7);
             }
             if (m_sum_cred < 0) { m_sum_cred = 0; }
             this.sum_kred.Text = Double_to_String(m_sum_cred);
@@ -1174,7 +1181,7 @@ namespace WPF_Kred_calc
                     annuitet = summ * m_proc_stavka / (1 - Math.Pow(1 + m_proc_stavka, -1 * m_srok));
                     //
                     summ_pro = summ * m_proc_stavka;
-                    n_ob += (annuitet * m_srok);
+                    if (m_srok > 0) { n_ob += (annuitet * m_srok); }
                     for (i = 1; i <= m_srok; i++)
                     {
                         // учет ежегодных
