@@ -844,6 +844,8 @@ namespace WPF_Kred_calc
         {
             if (is_program_loading == true) { return; }
 
+            // Расчет суммы эквивалента
+            this.summa_ekv.Text = Double_to_String(String_to_Double(this.summa.Text) * String_to_Double(this.kurs.Text));
             // Расчет суммы кредита
             Calc_sum_cred();
             // Расчитываем доп. платежи
