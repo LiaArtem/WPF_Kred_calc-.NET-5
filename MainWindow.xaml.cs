@@ -1116,6 +1116,7 @@ namespace WPF_Kred_calc
                         TColorType = "LightBlue"
                     });
                     this.pereplata.Text = Double_to_String(n_pr + summ_dop);
+                    this.pereplata_n.Text = Double_to_String(n_pr);
                 }
                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // С льготным периодом
@@ -1240,6 +1241,7 @@ namespace WPF_Kred_calc
                         TColorType = "LightBlue"
                     });
                     this.pereplata.Text = Double_to_String(n_pr + summ_dop);
+                    this.pereplata_n.Text = Double_to_String(n_pr);
                 }
             }
 
@@ -1416,6 +1418,7 @@ namespace WPF_Kred_calc
                     TColorType = "LightBlue"
                 });
                 this.pereplata.Text = Double_to_String(n_pr + summ_dop);
+                this.pereplata_n.Text = Double_to_String(n_pr);
             }
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // Рассрочка
@@ -1605,6 +1608,7 @@ namespace WPF_Kred_calc
                     TColorType = "LightBlue"
                 });
                 this.pereplata.Text = Double_to_String(n_pr + summ_dop);
+                this.pereplata_n.Text = Double_to_String(n_pr);
             }
             ///////////////////////
         }

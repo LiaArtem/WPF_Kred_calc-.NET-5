@@ -216,7 +216,8 @@
                             </TabItem>
                         </TabControl>
                         <Label Content="Переплата" Canvas.Left="5" Canvas.Top="160" FontWeight="Bold"/>
-                        <TextBox x:Name="pereplata" Canvas.Right ="20" Canvas.Top="165" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <TextBox x:Name="pereplata_n" Canvas.Right ="130" Canvas.Top="165" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <TextBox x:Name="pereplata" Canvas.Right ="20" Canvas.Top="165" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
                     </Canvas>
                 </GroupBox>
             </Canvas>
