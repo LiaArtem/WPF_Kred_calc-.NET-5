@@ -122,7 +122,7 @@
                         <Label Content="Сумма платежей ручная" Canvas.Left="0" Canvas.Top="0"/>
                         <TextBox x:Name="sum_plat" Canvas.Left ="150" Canvas.Top="5" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
                         <Label Content="Новый срок кредита (мес.)" Canvas.Left="0" Canvas.Top="25"/>
-                        <TextBox x:Name="srok_kred_new" Canvas.Left ="165" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kred_newTextChanged"/>
+                        <TextBox x:Name="srok_kred_new" Canvas.Left ="165" Canvas.Top="28" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kred_newTextChanged"/>
                         <TextBox x:Name="srok_kred_year_new" Canvas.Left ="210" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
                         <Label Content="(лет)" Canvas.Left="250" Canvas.Top="25"/>
                     </Canvas>

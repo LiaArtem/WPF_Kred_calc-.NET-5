@@ -272,7 +272,7 @@ namespace WPF_Kred_calc
             }
             else
             {
-                this.GroupBox_rasrochka.IsEnabled = false;
+                //this.GroupBox_rasrochka.IsEnabled = false;
                 this.kurs_start.IsEnabled = false; this.kurs_year_0.IsEnabled = false; this.kurs_year_1.IsEnabled = false;
                 this.kurs_year_2.IsEnabled = false; this.kurs_year_3.IsEnabled = false; this.kurs_year_4.IsEnabled = false;
                 this.koef_otsech.IsEnabled = false;
