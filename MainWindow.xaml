@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF_Kred_calc"
         mc:Ignorable="d"
-        Title="Кредитный калькулятор" Height="670" Width="1000" WindowStartupLocation="CenterScreen" Icon="icon.ico">
+        Title="Кредитный калькулятор" Height="700" Width="1000" WindowStartupLocation="CenterScreen" Icon="icon.ico">
 
     <Window.Resources>
         <Style x:Key="RightAlignedCell" TargetType="{x:Type TextBlock}">
@@ -119,15 +119,16 @@
                 </ComboBox>
                 <GroupBox x:Name="GroupBox_rasrochka" Header="Досрочное погашение" Canvas.Left ="5" Canvas.Top="250" MinWidth="340" MinHeight="75">
                     <Canvas>
-                        <Label Content="Сумма платежей ручная" Canvas.Left="0" Canvas.Top="0"/>
-                        <TextBox x:Name="sum_plat" Canvas.Left ="150" Canvas.Top="5" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                        <Label Content="Новая сумма" Canvas.Left="0" Canvas.Top="0"/>
+                        <TextBox x:Name="sum_plat" Canvas.Left ="85" Canvas.Top="5" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right"/>
+                        <CheckBox x:Name="check_recalc_graf" Content="С пересчетом" Canvas.Right ="20" Canvas.Top="7" MinWidth="80"/>
                         <Label Content="Новый срок кредита (мес.)" Canvas.Left="0" Canvas.Top="25"/>
-                        <TextBox x:Name="srok_kred_new" Canvas.Left ="165" Canvas.Top="28" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kred_newTextChanged"/>
+                        <TextBox x:Name="srok_kred_new" Canvas.Left ="165" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kred_newTextChanged" IsEnabled="False"/>
                         <TextBox x:Name="srok_kred_year_new" Canvas.Left ="210" Canvas.Top="30" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
                         <Label Content="(лет)" Canvas.Left="250" Canvas.Top="25"/>
                     </Canvas>
                 </GroupBox>
-                <GroupBox Header="Досрочное погашение" Canvas.Left ="5" Canvas.Top="325" MinWidth="340" MinHeight="65">
+                <GroupBox Header="Рассрочка (курсы)" Canvas.Left ="5" Canvas.Top="325" MinWidth="340" MinHeight="65">
                     <Canvas>
                         <Label Content="Нач.курс" Canvas.Left="0" Canvas.Top="0"/>
                         <TextBox x:Name="kurs_start" Canvas.Left ="5" Canvas.Top="20" MinWidth="45" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
@@ -145,7 +146,7 @@
                         <TextBox x:Name="koef_otsech" Canvas.Left ="280" Canvas.Top="20" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right" Text = "1"/>
                     </Canvas>
                 </GroupBox>
-                <GroupBox Header="Дополнительные расходы" Canvas.Left ="5" Canvas.Top="390" MinWidth="340" MinHeight="210">
+                <GroupBox Header="Дополнительные расходы" Canvas.Left ="5" Canvas.Top="390" MinWidth="340" MinHeight="240">
                     <Canvas>
                         <TabControl Canvas.Left ="5" Canvas.Top="0" MinWidth="315" MinHeight="160">
                             <TabItem Header="Итоги">
@@ -216,8 +217,13 @@
                             </TabItem>
                         </TabControl>
                         <Label Content="Переплата" Canvas.Left="5" Canvas.Top="160" FontWeight="Bold"/>
-                        <TextBox x:Name="pereplata_n" Canvas.Right ="130" Canvas.Top="165" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
-                        <TextBox x:Name="pereplata" Canvas.Right ="20" Canvas.Top="165" MinWidth="100" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <TextBox x:Name="pereplata" Canvas.Right ="20" Canvas.Top="165" MinWidth="150" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <Label Content="%" Canvas.Left="5" Canvas.Top="185" FontWeight="Bold"/>
+                        <TextBox x:Name="pereplata_n" Canvas.Right ="220" Canvas.Top="190" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <Label Content="О" Canvas.Left="110" Canvas.Top="185" FontWeight="Bold"/>
+                        <TextBox x:Name="pereplata_n2" Canvas.Right ="120" Canvas.Top="190" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
+                        <Label Content="М" Canvas.Left="205" Canvas.Top="185" FontWeight="Bold"/>
+                        <TextBox x:Name="pereplata_n3" Canvas.Right ="20" Canvas.Top="190" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" FontWeight="Bold" Text = "0,00" IsEnabled="False"/>
                     </Canvas>
                 </GroupBox>
             </Canvas>

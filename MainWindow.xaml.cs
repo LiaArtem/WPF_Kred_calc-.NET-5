@@ -1026,223 +1026,152 @@ namespace WPF_Kred_calc
                             zc = LastDayOfMonth(this.date_cred.SelectedDate.Value); zn = KolDayOfYear(this.date_cred.SelectedDate.Value); break;
                         default: break;
                     }
+                
+                // Льготный период
+                m_priv_proc_stavka = (m_priv_proc_stavka * 0.01 / zn) * zc;
+                m_proc_stavka = (m_proc_stavka * 0.01 / zn) * zc;
+                double m_proc_stavka_buff;
+                // Сумма аннуитетного платежа                    
+                double annuitet, annuitet_priv;
+                if (m_priv_proc_stavka == 0) {
+                    annuitet_priv = m_sum_kred / m_srok;
+                } else {
+                    annuitet_priv = (m_priv_proc_stavka / (1.00 - Math.Pow(1.00 + m_priv_proc_stavka, -m_srok))) * m_sum_kred;
+                }
 
-                // если % ставка = 0, ставим не 0
-                if (m_proc_stavka <= 0) { m_proc_stavka = 0.000001; }
+                // Переплата по кредиту
+                double sum_pereplata = 0;
+                double m_sum_plat = String_to_Double(this.sum_plat.Text);                   
+                double summ_calc_pereplata = m_sum_kred;
+                double summ_itog_pereplata = 0;                    
+                //
+                double summ = m_sum_kred;
+                DateTime d_date = this.date_cred.SelectedDate.Value;
+                double summ_pro;                
+                double summ_dop = 0;
+                double summ_calc_pro = 0;
+                double summ_plat = 0;
+                int srok_new = 0;
 
-                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                // Без льготного периода
-                if (m_priv_srok == 0)
+                annuitet = annuitet_priv;
+                m_proc_stavka_buff = m_priv_proc_stavka;
+                summ_pro = m_sum_kred * m_proc_stavka_buff;
+
+                for (i = 1; i <= m_srok; i++)
                 {
-                    m_proc_stavka = (m_proc_stavka * 0.01 / zn) * zc;
-                    // Сумма аннуитетного платежа
-                    double annuitet = m_sum_kred * m_proc_stavka / (1 - Math.Pow(1 + m_proc_stavka, -1 * m_srok));
-                    // Переплата по кредиту
-                    double m_sum_plat = String_to_Double(this.sum_plat.Text);
-                    double sum_pereplata = 0;
+                    // пересчет аннуитета (без пересчета)
+                    if (i == m_priv_srok + 1 && this.check_recalc_graf.IsChecked == false) 
+                    {                            
+                        m_proc_stavka_buff = m_proc_stavka;
+                        if (m_proc_stavka_buff == 0) {
+                            annuitet = summ / (m_srok - m_priv_srok);
+                        } else {
+                            annuitet = (m_proc_stavka_buff / (1.00 - Math.Pow(1.00 + m_proc_stavka_buff, -(m_srok - m_priv_srok)))) * summ;
+                        }                                                        
+                        summ_pro = summ * m_proc_stavka_buff;
+                    }
+                    // расчет аннуитета (с пересчетом)
+                    if (this.check_recalc_graf.IsChecked == true)
+                    {
+                        if (i <= m_priv_srok) {
+                            m_proc_stavka_buff = m_priv_proc_stavka;
+                        } else {
+                            m_proc_stavka_buff = m_proc_stavka;
+                        }
+                        
+                        if (m_proc_stavka_buff == 0) {
+                            annuitet = summ / (m_srok - i + 1);
+                        } else {
+                            annuitet = (m_proc_stavka_buff / (1.00 - Math.Pow(1.00 + m_proc_stavka_buff, -(m_srok - i + 1)))) * summ;
+                        }
+                        summ_pro = summ * m_proc_stavka_buff;
+                    }
+
                     if (m_sum_plat > annuitet)
                     {
                         sum_pereplata = m_sum_plat - annuitet;
-                        annuitet = m_sum_plat;
                     }
+
+                    // учет ежегодных
+                    double m_sum_year = 0;
+                    if ((i - 1) % 12 == 0 && i != 1)
+                    {
+                        m_sum_year = Dop_plat_in_month_year(summ, "%YEAR");
+                    }
+                    // учет ежемесяных
+                    double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
+
+                    int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
+                    if (year_int % 2 == 0) mTColorType = "MistyRose";
+                    else mTColorType = "AliceBlue";
+
+                    // корректируем последний этап переплаты
+                    if ((summ_calc_pereplata - annuitet - sum_pereplata + m_proc_stavka_buff * summ) < 0 && m_sum_plat > 0)
+                    {
+                        sum_pereplata = m_sum_kred - summ_itog_pereplata - summ_plat - (annuitet - summ_pro);
+                    }
+
+                    // добавляем строку          
+                    DataGrid1.Items.Add(new TDataGridCol
+                    {
+                        TDate = Get_date_month(d_date),
+                        TDolg = Double_to_String(summ),
+                        TPlatInt = Double_to_String(summ_pro),
+                        TPlat = Double_to_String(annuitet - summ_pro),
+                        TPereplata = Double_to_String(sum_pereplata),
+                        TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
+                        TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month + sum_pereplata),
+                        TColorType = mTColorType
+                    });
+
+                    // +1 месяц
+                    d_date = d_date.AddMonths(1);
+                    summ_plat += annuitet - summ_pro;
+                    summ_calc_pro += summ_pro;
+                    summ_itog_pereplata += sum_pereplata;
+                    srok_new += 1;
                     //
-                    double summ = m_sum_kred;
-                    DateTime d_date = this.date_cred.SelectedDate.Value;
-                    double summ_pro = m_sum_kred * m_proc_stavka;
-                    double n_pr = 0;
-                    double n_ob = annuitet * m_srok + m_sum_one;
-                    double summ_dop = 0;
-                    int srok_new = 0;
+                    if (this.check_recalc_graf.IsChecked == false) {
+                        summ = summ - annuitet + m_proc_stavka_buff * summ;
+                    } else {
+                        summ = summ - annuitet + m_proc_stavka_buff * summ - sum_pereplata;
+                    }                    
+                    summ_pro = summ * m_proc_stavka_buff;                        
+                    summ_dop = summ_dop + m_sum_one + m_sum_year + m_sum_month;                        
+                    m_sum_one = 0;
+                    if (summ < 0) { break; }                        
 
-                    for (i = 1; i <= m_srok; i++)
-                    {
-                        // учет ежегодных
-                        double m_sum_year = 0;
-                        if ((i - 1) % 12 == 0 && i != 1)
-                        {
-                            m_sum_year = Dop_plat_in_month_year(summ, "%YEAR");
-                        }
-                        // учет ежемесяных
-                        double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
-
-                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
-                        if (year_int % 2 == 0) mTColorType = "MistyRose";
-                        else mTColorType = "AliceBlue";
-
-                        // добавляем строку          
-                        DataGrid1.Items.Add(new TDataGridCol
-                        {
-                            TDate = Get_date_month(d_date),
-                            TDolg = Double_to_String(summ),
-                            TPlatInt = Double_to_String(summ_pro),
-                            TPlat = Double_to_String(annuitet - summ_pro),
-                            TPereplata = Double_to_String(sum_pereplata),
-                            TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
-                            TColorType = mTColorType
-                        });
-
-                        // +1 месяц
-                        d_date = d_date.AddMonths(1);
-                        summ = summ - annuitet + m_proc_stavka * summ;
-                        n_pr = n_pr + summ_pro + m_sum_one;
-                        summ_pro = summ * m_proc_stavka;
-                        summ_dop = summ_dop + m_sum_one + m_sum_year + m_sum_month;
-                        m_sum_one = 0;
-                        if (summ < 0) { break; }
-                        srok_new += 1;
-                    }
-
-                    this.srok_kred_new.Text = Double_to_String(srok_new);
-                    this.srok_kred_year_new.Text = Double_to_String(String_to_Double(this.srok_kred_new.Text) / 12);
-
-                    // Итого
-                    DataGrid1.Items.Add(new TDataGridCol
-                    {
-                        TDate = "Итого:",
-                        TDolg = "",
-                        TPlatInt = Double_to_String(n_pr),
-                        TPlat = Double_to_String(m_sum_kred),
-                        TPereplata = "",
-                        TPlatDop = Double_to_String(summ_dop),
-                        TItogo = Double_to_String(n_ob),
-                        TColorType = "LightGreen"
-                    });
-                    // Переплата
-                    DataGrid1.Items.Add(new TDataGridCol
-                    {
-                        TDate = "Переплата:",
-                        TItogo = Double_to_String(n_pr),
-                        TColorType = "LightBlue"
-                    });
-                    this.pereplata.Text = Double_to_String(n_pr + summ_dop);
-                    this.pereplata_n.Text = Double_to_String(n_pr);
+                    // с учетом переплаты
+                    summ_calc_pereplata = summ_calc_pereplata - annuitet - sum_pereplata + m_proc_stavka_buff * summ;
+                    if (summ_calc_pereplata < 0) { break; }
                 }
-                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                // С льготным периодом
-                else
+
+                this.srok_kred_new.Text = Double_to_String(srok_new);
+                this.srok_kred_year_new.Text = Double_to_String(String_to_Double(this.srok_kred_new.Text) / 12);
+
+                // Итого
+                DataGrid1.Items.Add(new TDataGridCol
                 {
-                    if (m_priv_proc_stavka <= 0) { m_priv_proc_stavka = 0.000001; }
-                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    // Льготный период
-                    m_priv_proc_stavka = (m_priv_proc_stavka * 0.01 / zn) * zc;
-                    // Сумма аннуитетного платежа
-                    double annuitet = m_sum_kred * m_priv_proc_stavka / (1 - Math.Pow(1 + m_priv_proc_stavka, -1 * m_srok));
-
-                    //
-                    double summ = m_sum_kred;
-                    DateTime d_date = this.date_cred.SelectedDate.Value;
-                    double summ_pro = m_sum_kred * m_priv_proc_stavka;
-                    double n_pr = 0;
-                    double n_ob = annuitet * m_srok + m_sum_one;
-                    double summ_dop = 0;
-                    for (i = 1; i <= m_priv_srok; i++)
-                    {
-                        // учет ежегодных
-                        double m_sum_year = 0;
-                        if ((i - 1) % 12 == 0 && i != 1)
-                        {
-                            m_sum_year = Dop_plat_in_month_year(summ, "%YEAR");
-                        }
-                        // учет ежемесяных
-                        double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
-
-                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
-                        if (year_int % 2 == 0) mTColorType = "MistyRose";
-                        else mTColorType = "AliceBlue";
-
-                        // добавляем строку                                                
-                        DataGrid1.Items.Add(new TDataGridCol
-                        {
-                            TDate = Get_date_month(d_date),
-                            TDolg = Double_to_String(summ),
-                            TPlatInt = Double_to_String(summ_pro),
-                            TPlat = Double_to_String(annuitet - summ_pro),
-                            TPereplata = "0.00",
-                            TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
-                            TColorType = mTColorType
-                        });
-
-                        // +1 месяц
-                        d_date = d_date.AddMonths(1);
-                        summ = summ - annuitet + m_priv_proc_stavka * summ;
-                        n_pr = n_pr + summ_pro + m_sum_one;
-                        summ_pro = summ * m_priv_proc_stavka;
-                        summ_dop = summ_dop + m_sum_one + m_sum_year + m_sum_month;
-                        m_sum_one = 0;
-                        if (summ < 0) { break; }
-                    }
-
-                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    // Обычный период
-                    m_srok -= m_priv_srok;
-                    m_proc_stavka = (m_proc_stavka * 0.01 / zn) * zc;
-                    // Сумма аннуитетного платежа
-                    annuitet = summ * m_proc_stavka / (1 - Math.Pow(1 + m_proc_stavka, -1 * m_srok));
-                    //
-                    summ_pro = summ * m_proc_stavka;
-                    if (m_srok > 0) { n_ob += (annuitet * m_srok); }
-                    for (i = 1; i <= m_srok; i++)
-                    {
-                        // учет ежегодных
-                        double m_sum_year = 0;                        
-                        if ((i - 1) % 12 == 0 && i != 1)
-                        {
-                            m_sum_year = Dop_plat_in_month_year(summ, "%YEAR");
-                        }
-                        // учет ежемесяных
-                        double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
-
-                        int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
-                        if (year_int % 2 == 0) mTColorType = "MistyRose";
-                        else mTColorType = "AliceBlue";
-
-                        // добавляем строку                                                
-                        DataGrid1.Items.Add(new TDataGridCol
-                        {
-                            TDate = Get_date_month(d_date),
-                            TDolg = Double_to_String(summ),
-                            TPlatInt = Double_to_String(summ_pro),
-                            TPlat = Double_to_String(annuitet - summ_pro),
-                            TPereplata = "0.00",
-                            TPlatDop = Double_to_String(m_sum_one + m_sum_year + m_sum_month),
-                            TItogo = Double_to_String(annuitet + m_sum_one + m_sum_year + m_sum_month),
-                            TColorType = mTColorType
-                        });
-
-                        // +1 месяц
-                        d_date = d_date.AddMonths(1);
-                        summ = summ - annuitet + m_proc_stavka * summ;
-                        n_pr = n_pr + summ_pro + m_sum_one;
-                        summ_pro = summ * m_proc_stavka;
-                        summ_dop = summ_dop + m_sum_one + m_sum_year + m_sum_month;
-                        m_sum_one = 0;
-                        if (summ < 0) { break; }
-                    }
-
-                    // Итого
-                    DataGrid1.Items.Add(new TDataGridCol
-                    {
-                        TDate = "Итого:",
-                        TDolg = "",
-                        TPlatInt = Double_to_String(n_pr),
-                        TPlat = Double_to_String(m_sum_kred),
-                        TPereplata = "",
-                        TPlatDop = Double_to_String(summ_dop),
-                        TItogo = Double_to_String(n_ob),
-                        TColorType = "LightGreen"
-                    });
-                    // Переплата
-                    DataGrid1.Items.Add(new TDataGridCol
-                    {
-                        TDate = "Переплата:",
-                        TItogo = Double_to_String(n_pr),
-                        TColorType = "LightBlue"
-                    });
-                    this.pereplata.Text = Double_to_String(n_pr + summ_dop);
-                    this.pereplata_n.Text = Double_to_String(n_pr);
-                }
+                    TDate = "Итого:",
+                    TDolg = "",
+                    TPlatInt = Double_to_String(summ_calc_pro),
+                    TPlat = Double_to_String(summ_plat),
+                    TPereplata = Double_to_String(summ_itog_pereplata),
+                    TPlatDop = Double_to_String(summ_dop),
+                    TItogo = Double_to_String(summ_calc_pro + summ_plat + summ_itog_pereplata + summ_dop),
+                    TColorType = "LightGreen"
+                });
+                // Переплата
+                DataGrid1.Items.Add(new TDataGridCol
+                {
+                    TDate = "Переплата:",
+                    TItogo = Double_to_String(summ_calc_pro + summ_dop),
+                    TColorType = "LightBlue"
+                });
+                this.pereplata.Text = Double_to_String(summ_calc_pro + summ_dop);
+                this.pereplata_n.Text = Double_to_String(summ_calc_pro); // %
+                this.pereplata_n2.Text = Double_to_String(String_to_Double(this.sum_dop_plat.Text)); // О
+                this.pereplata_n3.Text = Double_to_String(summ_dop - String_to_Double(this.sum_dop_plat.Text)); // М
             }
 
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
