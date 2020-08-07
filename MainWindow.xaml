@@ -85,24 +85,29 @@
                 <Label Content="Сумма кредита" Canvas.Left="170" Canvas.Top="75"/>
                 <TextBox x:Name="sum_kred" Canvas.Left ="265" Canvas.Top="80" MinWidth="80" TextWrapping="Wrap" MinHeight="20" MaxLength="11" TextAlignment ="Right" IsEnabled="False"/>
                 <CheckBox x:Name="check_recalc" Content="Расчет по сумме/% (Да/Нет)" Canvas.Left ="10" Canvas.Top="105" MinWidth="80" Click="Check_recalcClick"/>
-                <GroupBox Header="Льготные условия" Canvas.Left ="5" Canvas.Top="120" MinWidth="340" MinHeight="50">
+                <GroupBox Header="Условия" Canvas.Left ="5" Canvas.Top="120" MinWidth="340" MinHeight="100">
                     <Canvas>
+                        <Label Content="[льготная]" Canvas.Left="85" Canvas.Top="-15"/>
+                        <Label Content="[льготная]" Canvas.Left="145" Canvas.Top="-15"/>
+                        <Label Content="[льготная]" Canvas.Left="205" Canvas.Top="-15"/>
+                        <Label Content="[обычная]" Canvas.Left="265" Canvas.Top="-15"/>
                         <Label Content="% ставка" Canvas.Left="0" Canvas.Top="0"/>
-                        <TextBox x:Name="priv_proc_stavka" Canvas.Left ="60" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
-                        <Label Content="Период (мес.)" Canvas.Left="100" Canvas.Top="0"/>
-                        <TextBox x:Name="priv_srok_kred" Canvas.Left ="185" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Priv_srok_kredTextChanged"/>
-                        <TextBox x:Name="priv_srok_kred_year" Canvas.Left ="230" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
-                        <Label Content="(лет)" Canvas.Left="270" Canvas.Top="0"/>
-                    </Canvas>
-                </GroupBox>
-                <GroupBox Header="Обычные условия" Canvas.Left ="5" Canvas.Top="170" MinWidth="340" MinHeight="50">
-                    <Canvas>
-                        <Label Content="% ставка" Canvas.Left="0" Canvas.Top="0"/>
-                        <TextBox x:Name="proc_stavka" Canvas.Left ="60" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
-                        <Label Content="Период (мес.)" Canvas.Left="100" Canvas.Top="0"/>
-                        <TextBox x:Name="srok_kred" Canvas.Left ="185" Canvas.Top="4" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kredTextChanged"/>
-                        <TextBox x:Name="srok_kred_year" Canvas.Left ="230" Canvas.Top="5" MinWidth="40" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
-                        <Label Content="(лет)" Canvas.Left="270" Canvas.Top="0"/>
+                        <TextBox x:Name="priv_proc_stavka3" Canvas.Left ="90" Canvas.Top="5" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <TextBox x:Name="priv_proc_stavka2" Canvas.Left ="150" Canvas.Top="5" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <TextBox x:Name="priv_proc_stavka" Canvas.Left ="210" Canvas.Top="5" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        <TextBox x:Name="proc_stavka" Canvas.Left ="270" Canvas.Top="5" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="7" TextAlignment ="Right"/>
+                        
+                        <Label Content="Период (мес.)" Canvas.Left="0" Canvas.Top="25"/>
+                        <TextBox x:Name="priv_srok_kred3" Canvas.Left ="90" Canvas.Top="30" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Priv_srok_kred3TextChanged"/>
+                        <TextBox x:Name="priv_srok_kred2" Canvas.Left ="150" Canvas.Top="30" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Priv_srok_kred2TextChanged"/>
+                        <TextBox x:Name="priv_srok_kred" Canvas.Left ="210" Canvas.Top="30" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Priv_srok_kredTextChanged"/>
+                        <TextBox x:Name="srok_kred" Canvas.Left ="270" Canvas.Top="30" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" TextChanged="Srok_kredTextChanged"/>
+
+                        <Label Content="(лет)" Canvas.Left="0" Canvas.Top="50"/>
+                        <TextBox x:Name="priv_srok_kred_year3" Canvas.Left ="90" Canvas.Top="55" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <TextBox x:Name="priv_srok_kred_year2" Canvas.Left ="150" Canvas.Top="55" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <TextBox x:Name="priv_srok_kred_year" Canvas.Left ="210" Canvas.Top="55" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
+                        <TextBox x:Name="srok_kred_year" Canvas.Left ="270" Canvas.Top="55" MinWidth="50" TextWrapping="Wrap" MinHeight="20" MaxLength="5" TextAlignment ="Right" IsEnabled="False"/>
                     </Canvas>
                 </GroupBox>
                 <Label Content="Форма погашения" Canvas.Left="5" Canvas.Top="220"/>

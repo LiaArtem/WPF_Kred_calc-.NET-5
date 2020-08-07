@@ -83,6 +83,10 @@ namespace WPF_Kred_calc
             perv_vznos.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
             priv_proc_stavka.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
             priv_srok_kred.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Int);
+            priv_proc_stavka2.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
+            priv_srok_kred2.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Int);
+            priv_proc_stavka3.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
+            priv_srok_kred3.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Int);
             proc_stavka.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
             srok_kred.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Int);
             sum_plat.PreviewTextInput += new TextCompositionEventHandler(TextBox_PreviewTextInput_Float);
@@ -579,6 +583,23 @@ namespace WPF_Kred_calc
                         this.curr_code.Text = m_curr_code;
                         this.priv_proc_stavka.Text = node.SelectSingleNode("./priv_proc_stavka").InnerText;
                         this.priv_srok_kred.Text = node.SelectSingleNode("./priv_srok").InnerText;
+                        //
+                        var temp = node.SelectSingleNode("./priv_proc_stavka2");                        
+                        if (temp != null) { this.priv_proc_stavka2.Text = temp.InnerText; }
+                        else { this.priv_proc_stavka2.Text = ""; }
+                        //
+                        temp = node.SelectSingleNode("./priv_srok2");
+                        if (temp != null) { this.priv_srok_kred2.Text = temp.InnerText; }
+                        else { this.priv_srok_kred2.Text = ""; }
+                        //
+                        temp = node.SelectSingleNode("./priv_proc_stavka3");
+                        if (temp != null) { this.priv_proc_stavka3.Text = temp.InnerText; }
+                        else { this.priv_proc_stavka3.Text = ""; }
+                        //
+                        temp = node.SelectSingleNode("./priv_srok3");
+                        if (temp != null) { this.priv_srok_kred3.Text = temp.InnerText; }
+                        else { this.priv_srok_kred3.Text = ""; }
+                        //
                         this.proc_stavka.Text = node.SelectSingleNode("./proc_stavka").InnerText;
                         this.summa.Text = node.SelectSingleNode("./summa").InnerText;
                         this.proc_perv_vznos.Text = node.SelectSingleNode("./perv_vznos_proc").InnerText;
@@ -653,9 +674,11 @@ namespace WPF_Kred_calc
                 
                 // расчитываем поля которые в годах
                 this.priv_srok_kred_year.Text = Double_to_String(String_to_Double(this.priv_srok_kred.Text) / 12);
+                this.priv_srok_kred_year2.Text = Double_to_String(String_to_Double(this.priv_srok_kred2.Text) / 12);
+                this.priv_srok_kred_year3.Text = Double_to_String(String_to_Double(this.priv_srok_kred3.Text) / 12);
                 this.srok_kred_year.Text = Double_to_String(String_to_Double(this.srok_kred.Text) / 12);
                 this.srok_kred_year_new.Text = Double_to_String(String_to_Double(this.srok_kred_new.Text) / 12);
-            }
+            }            
             catch (Exception e)
             {
                 MessageBoxError("Ошибка !!!" + "\n" + e.Message);
@@ -877,6 +900,24 @@ namespace WPF_Kred_calc
             this.priv_srok_kred_year.Text = Double_to_String(String_to_Double(textBox.Text) / 12);
         }
 
+        // вводим данные в поле Период - Льготные условия
+        private void Priv_srok_kred2TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (is_program_loading == true) { return; }
+
+            TextBox textBox = (TextBox)sender;
+            this.priv_srok_kred_year2.Text = Double_to_String(String_to_Double(textBox.Text) / 12);
+        }
+
+        // вводим данные в поле Период - Льготные условия
+        private void Priv_srok_kred3TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (is_program_loading == true) { return; }
+
+            TextBox textBox = (TextBox)sender;
+            this.priv_srok_kred_year3.Text = Double_to_String(String_to_Double(textBox.Text) / 12);
+        }
+
         // вводим данные в поле Новый срок кредита
         private void Srok_kred_newTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -995,8 +1036,12 @@ namespace WPF_Kred_calc
             double m_sum_kred = String_to_Double(this.sum_kred.Text);
             double m_proc_stavka = String_to_Double(this.proc_stavka.Text);
             double m_priv_proc_stavka = String_to_Double(this.priv_proc_stavka.Text);
+            double m_priv_proc_stavka2 = String_to_Double(this.priv_proc_stavka2.Text);
+            double m_priv_proc_stavka3 = String_to_Double(this.priv_proc_stavka3.Text);
             double m_srok = String_to_Double(this.srok_kred.Text);
             double m_priv_srok = String_to_Double(this.priv_srok_kred.Text);
+            double m_priv_srok2 = String_to_Double(this.priv_srok_kred2.Text);
+            double m_priv_srok3 = String_to_Double(this.priv_srok_kred3.Text);
             String m_type_proc = this.type_proc.Text;
             String m_type_annuitet = this.type_annuitet.Text;
             double m_koef_otsech = String_to_Double(this.koef_otsech.Text);
@@ -1212,13 +1257,17 @@ namespace WPF_Kred_calc
                         }
 
                     // льготная
-                    if (i <= m_priv_srok)
-                    {
+                    if (i <= m_priv_srok3) {
+                        pr = summ_graf * m_priv_proc_stavka3 * (zc / zn) / 100;
+                    }
+                    else if (i <= (m_priv_srok3 + m_priv_srok2)) {
+                        pr = summ_graf * m_priv_proc_stavka2 * (zc / zn) / 100;
+                    }
+                    else if (i <= (m_priv_srok3 + m_priv_srok2 + m_priv_srok)) {
                         pr = summ_graf * m_priv_proc_stavka * (zc / zn) / 100;
                     }
                     // обычная
-                    else
-                    {
+                    else {
                         pr = summ_graf * m_proc_stavka * (zc / zn) / 100;
                     }
 
@@ -1266,7 +1315,15 @@ namespace WPF_Kred_calc
                                 }
 
                             // льготная
-                            if (i <= m_priv_srok)
+                            if (i <= m_priv_srok3)
+                            {
+                                pr = summ * m_priv_proc_stavka3 * (zc / zn) / 100;
+                            }
+                            else if (i <= (m_priv_srok3 + m_priv_srok2))
+                            {
+                                pr = summ * m_priv_proc_stavka2 * (zc / zn) / 100;
+                            }
+                            else if (i <= (m_priv_srok3 + m_priv_srok2 + m_priv_srok))
                             {
                                 pr = summ * m_priv_proc_stavka * (zc / zn) / 100;
                             }
