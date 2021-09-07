@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<primary>
+    <global>
+        <name>Автомобиль</name>
+        <type>A</type>
+    </global>
+    <main>
+        <date_cred></date_cred>
+        <priv_proc_stavka>2</priv_proc_stavka>
+        <priv_srok>24</priv_srok>
+        <proc_stavka>18</proc_stavka>
+        <curr_code>UAH</curr_code>
+        <summa>207300</summa>
+        <kurs></kurs>
+        <perv_vznos_proc>30</perv_vznos_proc>
+        <perv_vznos></perv_vznos>
+        <srok>60</srok>
+        <type_proc>K</type_proc>
+    </main>
+    <dopoln>
+        <bank_komiss_1>2,99%S</bank_komiss_1>
+        <bank_komiss_1_text>Комиссия банка за обслуж.</bank_komiss_1_text>
+        <bank_komiss_2>2%S%MONTH</bank_komiss_2>
+        <bank_komiss_2_text>Ежемесячная комиссия банка</bank_komiss_2_text>
+        <stra_komiss_1>5,49%S%YEAR</stra_komiss_1>
+        <stra_komiss_1_text>КАСКО</stra_komiss_1_text>
+        <stra_komiss_2>0</stra_komiss_2>
+        <stra_komiss_2_text>Договор страхования жизни</stra_komiss_2_text>
+        <stra_komiss_3>0%S%YEAR</stra_komiss_3>
+        <stra_komiss_3_text>ОСАГО</stra_komiss_3_text>
+        <nota_komiss_1>0</nota_komiss_1>
+        <nota_komiss_1_text>Внес.реестр залог. имущества</nota_komiss_1_text>
+        <nota_komiss_2>0</nota_komiss_2>
+        <nota_komiss_2_text>Оформление договора залога</nota_komiss_2_text>
+        <nota_komiss_3>0,1%F</nota_komiss_3>
+        <nota_komiss_3_text>Госпошлина</nota_komiss_3_text>
+        <nota_komiss_4>0%F</nota_komiss_4>
+        <nota_komiss_4_text>Пенсионный фонд</nota_komiss_4_text>
+        <nota_komiss_5>0</nota_komiss_5>
+        <nota_komiss_5_text>Оформ догов. покупки-продаж</nota_komiss_5_text>
+        <riel_komiss_1>0</riel_komiss_1>
+        <riel_komiss_1_text>Транспортный сбор</riel_komiss_1_text>
+        <riel_komiss_2>800</riel_komiss_2>
+        <riel_komiss_2_text>Услуги нотариуса</riel_komiss_2_text>
+        <riel_komiss_3>500</riel_komiss_3>
+        <riel_komiss_3_text>Регистрация в ДАИ</riel_komiss_3_text>
+    </dopoln>
+    <rasrochka>
+        <kurs>26,5</kurs>
+        <kurs_year_0>32</kurs_year_0>
+        <kurs_year_1>35</kurs_year_1>
+        <kurs_year_2>37</kurs_year_2>
+        <kurs_year_3>42</kurs_year_3>
+        <kurs_year_4>45</kurs_year_4>
+        <koef_otsech>1.02</koef_otsech>
+    </rasrochka>
+</primary>

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<primary>
+    <global>
+        <name>Квартира (классика)</name>
+        <type>K</type>
+    </global>
+    <main>
+        <date_cred></date_cred>
+        <priv_proc_stavka></priv_proc_stavka>
+        <priv_srok></priv_srok>
+        <proc_stavka>9,99</proc_stavka>
+        <curr_code>UAH</curr_code>
+        <summa>1500000</summa>
+        <kurs></kurs>
+        <perv_vznos_proc></perv_vznos_proc>
+        <perv_vznos>700000</perv_vznos>
+        <srok>84</srok>
+        <type_proc>K</type_proc>
+    </main>
+    <dopoln>
+        <bank_komiss_1>1%S</bank_komiss_1>
+        <bank_komiss_1_text>Комиссия банка за обслуж.</bank_komiss_1_text>
+        <bank_komiss_2>0%S%MONTH</bank_komiss_2>
+        <bank_komiss_2_text>Ежемесячная комиссия банка</bank_komiss_2_text>
+        <stra_komiss_1>0.5%F%YEAR</stra_komiss_1>
+        <stra_komiss_1_text>Страх. предмета ипотеки</stra_komiss_1_text>
+        <stra_komiss_2>0.5%S%YEAR</stra_komiss_2>
+        <stra_komiss_2_text>Договор страхования жизни</stra_komiss_2_text>
+        <stra_komiss_3>0%S%YEAR</stra_komiss_3>
+        <stra_komiss_3_text>Страх от нещасного случая</stra_komiss_3_text>
+        <nota_komiss_1>0</nota_komiss_1>
+        <nota_komiss_1_text>Внес.реестр залог. имущества</nota_komiss_1_text>
+        <nota_komiss_2>0</nota_komiss_2>
+        <nota_komiss_2_text>Оформление договора залога</nota_komiss_2_text>
+        <nota_komiss_3>1%F</nota_komiss_3>
+        <nota_komiss_3_text>Госпошлина</nota_komiss_3_text>
+        <nota_komiss_4>1%F</nota_komiss_4>
+        <nota_komiss_4_text>Пенсионный фонд</nota_komiss_4_text>
+        <nota_komiss_5>12000</nota_komiss_5>
+        <nota_komiss_5_text>Оформ догов. покупки-продаж</nota_komiss_5_text>
+        <riel_komiss_1>3500</riel_komiss_1>
+        <riel_komiss_1_text>Экспертная оценка недвижим</riel_komiss_1_text>
+        <riel_komiss_2>0</riel_komiss_2>
+        <riel_komiss_2_text>Консульт. и оформл. документ</riel_komiss_2_text>
+        <riel_komiss_3>0</riel_komiss_3>
+        <riel_komiss_3_text>Регистрация договора в БТИ</riel_komiss_3_text>
+    </dopoln>
+    <rasrochka>
+        <kurs>28,1</kurs>
+        <kurs_year_0>32</kurs_year_0>
+        <kurs_year_1>35,4</kurs_year_1>
+        <kurs_year_2>28,4</kurs_year_2>
+        <kurs_year_3>37</kurs_year_3>
+        <kurs_year_4>40</kurs_year_4>
+        <koef_otsech>1.02</koef_otsech>
+    </rasrochka>
+</primary>

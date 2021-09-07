@@ -13,7 +13,8 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Text.Json;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace WPF_Kred_calc
 {
@@ -38,7 +39,7 @@ namespace WPF_Kred_calc
 
     public class CreateCurrencyList
     {
-        private static List<Currency> currencyList = new List<Currency>();            
+        private static List<Currency> currencyList = new();            
         public static List<Currency> ReadList()
         {
             return currencyList;
@@ -57,18 +58,31 @@ namespace WPF_Kred_calc
         }
     }
 
+    public static class HttpHelper
+    {
+        private static readonly HttpClient _httpClient = new();
+
+        public static async Task<byte[]> DownloadFileAsync(string uri)
+        //public static async Task<string> DownloadFileAsync(string uri)
+        {
+            byte[] fileBytes = await _httpClient.GetByteArrayAsync(uri);
+            //string file = await _httpClient.GetStringAsync(uri);
+            return fileBytes;
+            //return file;
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        public static int typ;
-        public static String[] file_path_ini_mas, type_ini_mas;
-        public static Boolean is_program_loading = true;
-        public static String tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase).Substring(6);
-        public static String tec_kat_ini = tec_kat + "\\" + "ini" + "\\";
-        public static String tec_kat_temp = tec_kat + "\\" + "temp";
-        public ObservableCollection<string> list = new ObservableCollection<string>();
+    {        
+        static String[] file_path_ini_mas, type_ini_mas;
+        static Boolean is_program_loading = true;
+        static readonly String tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..]; //[6..] вместо .Substring(6)
+        static readonly String tec_kat_ini = tec_kat + "\\" + "ini" + "\\";
+        static readonly String tec_kat_temp = tec_kat + "\\" + "temp";
+        public ObservableCollection<string> list = new();
 
         public MainWindow()
         {
@@ -136,7 +150,7 @@ namespace WPF_Kred_calc
         }
 
         // Преобразование текста в число
-        public double String_to_Double(string TextString)
+        public static double String_to_Double(string TextString)
         {
             string rezult = TextString.Replace(".", ",");
             if (!double.TryParse(rezult, out double rezult_dbl))
@@ -148,7 +162,7 @@ namespace WPF_Kred_calc
         }
 
         // Преобразование числа в текст
-        public String Double_to_String(double TextDouble, int midpoint = 2, string format = "#,0.00")
+        public static String Double_to_String(double TextDouble, int midpoint = 2, string format = "#,0.00")
         {
             if (midpoint == 3) { format = "#,0.000"; }
             else if (midpoint == 4) { format = "#,0.0000"; }
@@ -164,7 +178,7 @@ namespace WPF_Kred_calc
             System.Windows.MessageBox.Show(infoMessage, "Сообщение", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
         }
 
-        public Boolean IsDateValid(String m_date)
+        public static Boolean IsDateValid(String m_date)
         {
             if (m_date == "") { return false; }
             try
@@ -187,24 +201,24 @@ namespace WPF_Kred_calc
         // Количество дней в году
         public static int KolDayOfYear(DateTime dteDate)
         {
-            DateTime d = new DateTime(dteDate.Year, 1, 1);
-            DateTime d2 = new DateTime(dteDate.Year + 1, 1, 1);
+            DateTime d = new(dteDate.Year, 1, 1);
+            DateTime d2 = new(dteDate.Year + 1, 1, 1);
             return Convert.ToInt32((d2 - d).TotalDays);
         }
 
-        public string Get_date_month(DateTime date_in)
+        public static string Get_date_month(DateTime date_in)
         {
             string mon = date_in.Month.ToString("00");
             return date_in.Year + "." + mon;
         }
 
-        public int Get_YEAR(DateTime val, int add_year)
+        public static int Get_YEAR(DateTime val, int add_year)
         {
             return val.Year + add_year;
         }
 
         // обрезать количество символов в тексте
-        public string Get_String_Length(string p_text, int p_length = 26)
+        public static string Get_String_Length(string p_text, int p_length = 26)
         {
             if (p_text == "") return p_text;
             int m_length = p_length;
@@ -214,7 +228,7 @@ namespace WPF_Kred_calc
         }
 
         // Убрать пустоты в тексте
-        public string Get_String_Not_Space(string p_text)
+        public static string Get_String_Not_Space(string p_text)
         {
             string m_text = p_text;
             if (m_text == null) return m_text;
@@ -306,7 +320,7 @@ namespace WPF_Kred_calc
         }
 
         // Получить курс НБУ
-        public double GetKursNbu(String mCurrCode, DateTime mDate)
+        public static double GetKursNbu(String mCurrCode, DateTime mDate)
         {
             String settings_data_format = "xml"; String settings_file_name = "";  String settings_url = "";
             String settings_char_curr_code = ""; String settings_char_kurs = "";
@@ -337,13 +351,13 @@ namespace WPF_Kred_calc
 
             // ищем файл настроек
             String mPathXml_Settings = tec_kat + "\\settings.xml";
-            FileInfo fileInf_Settings = new FileInfo(mPathXml_Settings);
+            FileInfo fileInf_Settings = new(mPathXml_Settings);
             if (fileInf_Settings.Exists)
             {
                 try
                 {
                     // чтение XML файла    
-                    XmlDocument xDoc = new XmlDocument();
+                    XmlDocument xDoc = new();
                     xDoc.Load(mPathXml_Settings);
                     foreach (XmlNode xnode in xDoc.DocumentElement.GetElementsByTagName("kurs_nbu").Item(0))
                     {
@@ -369,14 +383,14 @@ namespace WPF_Kred_calc
             }
 
             // если папка не существует, создаем
-            DirectoryInfo dirInfo = new DirectoryInfo(mPath);
+            DirectoryInfo dirInfo = new(mPath);
             if (!dirInfo.Exists)
             {
                 dirInfo.Create();
             }
 
             mPathOut = mPath + "\\" + settings_file_name  + mDate.ToString("yyyyMMdd") + "." + settings_data_format;
-            FileInfo fileInf = new FileInfo(mPathOut);
+            FileInfo fileInf = new(mPathOut);
 
             // Если нет файла взять его с сайта
             if (!fileInf.Exists)
@@ -385,17 +399,30 @@ namespace WPF_Kred_calc
                 // чтение файла с НБУ                       
                 try
                 {
+                    /* устарел WebClient, необходимо использовать HttpClient
                     ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                    using (WebClient wc = new WebClient())
+                    using (WebClient wc = new())
                     {
                         string text = wc.DownloadString(settings_url);
                         // запись в файл
-                        using FileStream fstream = new FileStream(mPathOut, FileMode.Create);
+                        using FileStream fstream = new(mPathOut, FileMode.Create);
                         // преобразуем строку в байты                                                        
                         byte[] array = System.Text.Encoding.Default.GetBytes(text);
                         // запись массива байтов в файл
                         fstream.Write(array, 0, array.Length);
                     }
+                    */
+                    var responce = Task.Run(() => HttpHelper.DownloadFileAsync(settings_url)).Result;                     
+                    // запись в файл
+                    using (FileStream fstream = new(mPathOut, FileMode.OpenOrCreate))
+                    {
+                        // преобразуем строку в байты, если responce -> string                                                       
+                        //byte[] array = System.Text.Encoding.Default.GetBytes(responce);
+                        byte[] array = responce;
+                        // запись массива байтов в файл
+                        fstream.Write(array, 0, array.Length);                        
+                    }
+
                     // перечитать созданный файл
                     fileInf = new FileInfo(mPathOut);
                 }
@@ -411,14 +438,14 @@ namespace WPF_Kred_calc
                 try
                 {
                     // чтение XML файла    
-                    XmlDocument xDoc = new XmlDocument();
+                    XmlDocument xDoc = new();
                     xDoc.Load(mPathOut);
                     XmlElement xRoot = xDoc.DocumentElement;
-                    List<Currency> currencyList = new List<Currency>();
+                    List<Currency> currencyList = new();
                     // поиск строки с курсом
                     foreach (XmlElement xnode in xRoot)
                     {
-                        Currency currency = new Currency();
+                        Currency currency = new();
                         foreach (XmlNode childnode in xnode.ChildNodes)
                         {
                             if (childnode.Name == settings_char_kurs) { currency.RATE = String_to_Double(childnode.InnerText); }
@@ -454,7 +481,7 @@ namespace WPF_Kred_calc
                 {
                     // чтение JSON файла
                     string JsonFile;
-                    using (FileStream fs = new FileStream(fileInf.FullName, FileMode.Open))
+                    using (FileStream fs = new(fileInf.FullName, FileMode.Open))
                     {
                         // преобразуем строку в байты
                         byte[] array = new byte[fs.Length];
@@ -466,10 +493,10 @@ namespace WPF_Kred_calc
 
                     JsonDocument document = JsonDocument.Parse(JsonFile);
                     JsonElement root = document.RootElement;
-                    List<Currency> currencyList = new List<Currency>();
+                    List<Currency> currencyList = new();
                     foreach (JsonElement child in root.EnumerateArray())
                     {
-                        Currency currency = new Currency();
+                        Currency currency = new();
                         if (child.TryGetProperty(settings_char_kurs, out JsonElement gradeElement_RATE))
                         {
                             currency.RATE = gradeElement_RATE.GetDouble();
@@ -512,7 +539,7 @@ namespace WPF_Kred_calc
         // Поиск шаблонов
         public void Poisk_xml_files()
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(tec_kat_ini);
+            DirectoryInfo dirInfo = new(tec_kat_ini);
             if (dirInfo.Exists)
             {
                 FileInfo[] listOfFiles = dirInfo.GetFiles("*.xml");                
@@ -529,7 +556,7 @@ namespace WPF_Kred_calc
                         {
                             // чтение XML файла
                             file_path_ini_mas[ii] = file.FullName;
-                            XmlDocument xDoc = new XmlDocument();
+                            XmlDocument xDoc = new();
                             xDoc.Load(file.FullName);
                             foreach (XmlNode node in xDoc.DocumentElement.ChildNodes)                                
                             {
@@ -551,15 +578,26 @@ namespace WPF_Kred_calc
                 this.type_rasch.ItemsSource = list;
                 this.type_rasch.SelectedIndex = 0;
             }
+            else
+            {
+                // если каталога нет, создаем его. Переменная = tec_kat_ini
+                dirInfo.Create();
+            }
         }
 
         // Чтение XML файла
         public void Read_xml_file_kred_calc()
         {
+            // если нет шаблонов xml для загрузки
+            if (this.type_rasch.SelectedIndex == -1) {
+                MessageBoxError("Ошибка не найдены файлы шаблоны в папке !!!" + "\n" + tec_kat_ini);                
+                return;
+            }
+
             try
             {
                 // чтение XML файла
-                XmlDocument xDoc = new XmlDocument();
+                XmlDocument xDoc = new();                
                 xDoc.Load(file_path_ini_mas[this.type_rasch.SelectedIndex]);
                 foreach (XmlNode node in xDoc.DocumentElement.ChildNodes)
                 {
@@ -736,36 +774,36 @@ namespace WPF_Kred_calc
             double sum_out = 0;
             double m_summa_ekv = String_to_Double(this.summa_ekv.Text);
             String tt = this.bank_komiss_1.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.bank_komiss_2.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.stra_komiss_1.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.stra_komiss_2.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.stra_komiss_3.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.nota_komiss_1.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.nota_komiss_2.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.nota_komiss_3.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.nota_komiss_4.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.nota_komiss_5.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.riel_komiss_1.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.riel_komiss_2.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             tt = this.riel_komiss_3.Text;
-            if (tt.IndexOf(t_value_find) >= 0) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
+            if (tt.Contains(t_value_find, StringComparison.CurrentCulture)) { sum_out += Dop_plat_in(tt, m_summa_ekv, t_sum_kred); }
             return sum_out;
         }
 
         // Доп. платежи автоподстановки
-        public double Dop_plat_in(String t_in, double t_summa_ekv, double t_sum_kred)
+        public static double Dop_plat_in(String t_in, double t_summa_ekv, double t_sum_kred)
         {
             String n = t_in;
             double s = t_summa_ekv;
@@ -779,7 +817,7 @@ namespace WPF_Kred_calc
             // оплата ежемесяно
             n = n.Replace("%MONTH", "");
             // процент от суммы кредита
-            if (n.IndexOf("%S") >= 0)
+            if (n.Contains("%S", StringComparison.CurrentCulture))
             {
                 n = n.Replace("%S", "");
                 pl = String_to_Double(n);
@@ -793,7 +831,7 @@ namespace WPF_Kred_calc
                 }
             }
             // процент от суммы квартиры
-            else if (n.IndexOf("%F") >= 0)
+            else if (n.Contains("%F", StringComparison.CurrentCulture))
             {
                 n = n.Replace("%F", "");
                 pl = String_to_Double(n);
@@ -974,7 +1012,7 @@ namespace WPF_Kred_calc
         // Экспорт в CSV
         private void Button_ExportCSVClick(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog OpenSavefileDialog = new SaveFileDialog
+            SaveFileDialog OpenSavefileDialog = new()
             {
                 Filter = "CSV file|*.csv",
                 Title = "Save an CSV File"
@@ -995,9 +1033,9 @@ namespace WPF_Kred_calc
             }
         }
 
-        private void ToCSV(DataGrid DataGrid1, string strFilePath)
+        private static void ToCSV(DataGrid DataGrid1, string strFilePath)
         {
-            StreamWriter sw = new StreamWriter(strFilePath, false, System.Text.Encoding.Default);
+            StreamWriter sw = new(strFilePath, false, System.Text.Encoding.Default);
             //headers  
             //for (int i = 0; i < DataGrid1.Columns.Count; i++)
             //{

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<main>
+      <kurs_nbu>
+                <data_format>json</data_format>
+                <file_name>NBU_Exchange</file_name>
+                <url>https://bank.gov.ua/NBU_Exchange/exchange?date=%MDATE%&amp;json</url>
+                <char_curr_code>CurrencyCodeL</char_curr_code>
+                <char_kurs>Amount</char_kurs>
+                <char_forc>Units</char_forc>
+                <char_format_date>dd.MM.yyyy</char_format_date>
+      </kurs_nbu>
+      <kurs_nbu>
+                <data_format>xml</data_format>
+                <file_name>NBUStatService</file_name>
+                <url>https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=%MDATE%</url>
+                <char_curr_code>cc</char_curr_code>
+                <char_kurs>rate</char_kurs>
+                <char_forc></char_forc>
+                <char_format_date>yyyyMMdd</char_format_date>
+      </kurs_nbu>
+</main>
