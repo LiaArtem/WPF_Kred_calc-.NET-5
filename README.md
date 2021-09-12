@@ -1,2 +1,2 @@
 # WPF_Kred_calc-.NET-6
-WPF project - Credit calculator (real estate, auto) (annuity, the classics, installment)
+WPF project - Credit calculator (real estate, auto) (annuity, the classics, installment).
