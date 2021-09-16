@@ -15,6 +15,8 @@ using System.Text.Json;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace WPF_Kred_calc
 {
@@ -70,6 +72,80 @@ namespace WPF_Kred_calc
             return fileBytes;
             //return file;
         }
+    }
+
+    public class SQLDatabase
+    {
+        readonly static string sql_tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..] + @"\LocalDB_WPF_Kred_calc.mdf";
+        readonly static string connetionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + sql_tec_kat + "; Integrated Security=True";
+        SqlConnection connection;
+
+        public double ReadDatabase(DateTime p_kurs_date , string p_curr_code)
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                try
+                {
+                    SqlCommand command = new("select [dbo].[GET_KURS] (@kurs_date, @curr_code)", connection);
+                    command.Parameters.Add("@kurs_date", SqlDbType.Date);
+                    command.Parameters["@kurs_date"].Value = p_kurs_date;
+                    command.Parameters.Add("@curr_code", SqlDbType.VarChar);
+                    command.Parameters["@curr_code"].Value = p_curr_code;
+
+                    var rezult = command.ExecuteScalar();
+                    if (Convert.IsDBNull(rezult))
+                        return -1;
+                    
+                    command.Dispose();
+                    return (double)rezult;                                        
+                }
+                catch
+                {
+                    return -1;
+                }
+            }
+            return -1;
+        }
+
+        public void WriteDatabase(DateTime p_kurs_date, string p_curr_code, double p_rate, double p_forc)
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                SqlCommand command = new("exec [dbo].[SET_KURS] @kurs_date, @curr_code, @rate, @forc;", connection);
+                command.Parameters.Add("@kurs_date", SqlDbType.Date);
+                command.Parameters["@kurs_date"].Value = p_kurs_date;
+                command.Parameters.Add("@curr_code", SqlDbType.VarChar);
+                command.Parameters["@curr_code"].Value = p_curr_code;
+                command.Parameters.Add("@rate", SqlDbType.Float);
+                command.Parameters["@rate"].Value = p_rate;
+                command.Parameters.Add("@forc", SqlDbType.Int);
+                command.Parameters["@forc"].Value = p_forc;
+
+                command.ExecuteNonQuery();                    
+                command.Dispose();                
+            }            
+        }
+
+        public bool OpenDatabase()
+        {                         
+            connection = new(connetionString);
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                    connection.Open();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void CloseDatabase()
+        {
+            if (connection.State != ConnectionState.Closed)
+                connection.Close();
+        }    
     }
 
     /// <summary>
@@ -349,6 +425,13 @@ namespace WPF_Kred_calc
                 }*/
             }
 
+            // чтение с локальной базы данных MS SQL
+            SQLDatabase db_read = new();
+            db_read.OpenDatabase();
+            double rezult_db = db_read.ReadDatabase(mDate, mCurrCode);
+            db_read.CloseDatabase();
+            if (rezult_db != -1) return rezult_db;
+
             // ищем файл настроек
             String mPathXml_Settings = tec_kat + "\\settings.xml";
             FileInfo fileInf_Settings = new(mPathXml_Settings);
@@ -442,6 +525,10 @@ namespace WPF_Kred_calc
                     xDoc.Load(mPathOut);
                     XmlElement xRoot = xDoc.DocumentElement;
                     List<Currency> currencyList = new();
+
+                    SQLDatabase db_write = new(); // инициализация - запись в локальную базу данных MS SQL
+                    db_write.OpenDatabase();
+
                     // поиск строки с курсом
                     foreach (XmlElement xnode in xRoot)
                     {
@@ -453,7 +540,10 @@ namespace WPF_Kred_calc
                             else if (childnode.Name == settings_char_curr_code) { currency.CURR_CODE = childnode.InnerText; }                            
                             currencyList.Add(currency);
                         }
+                        // запись в локальную базу данных MS SQL                                                
+                        db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
                     }
+                    db_write.CloseDatabase();
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
                     // LINQ расширение
@@ -494,6 +584,10 @@ namespace WPF_Kred_calc
                     JsonDocument document = JsonDocument.Parse(JsonFile);
                     JsonElement root = document.RootElement;
                     List<Currency> currencyList = new();
+                    
+                    SQLDatabase db_write = new(); // инициализация - запись в локальную базу данных MS SQL
+                    db_write.OpenDatabase();
+
                     foreach (JsonElement child in root.EnumerateArray())
                     {
                         Currency currency = new();
@@ -510,7 +604,12 @@ namespace WPF_Kred_calc
                             currency.CURR_CODE = gradeElement_KURS_CODE.GetString();
                         }
                         currencyList.Add(currency);
+
+                        // запись в локальную базу данных MS SQL                                                
+                        db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                                                
                     }
+                    db_write.CloseDatabase();
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
                     // LINQ расширение

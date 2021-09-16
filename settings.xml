@@ -9,6 +9,7 @@
                 <char_forc>Units</char_forc>
                 <char_format_date>dd.MM.yyyy</char_format_date>
       </kurs_nbu>
+  
       <kurs_nbu>
                 <data_format>xml</data_format>
                 <file_name>NBUStatService</file_name>
