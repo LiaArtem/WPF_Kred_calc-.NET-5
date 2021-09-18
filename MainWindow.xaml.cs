@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using Microsoft.Data.Sqlite;
 
 namespace WPF_Kred_calc
 {
@@ -146,6 +147,105 @@ namespace WPF_Kred_calc
             if (connection.State != ConnectionState.Closed)
                 connection.Close();
         }    
+    }
+
+    public class SQLiteDatabase
+    {
+        readonly static string sql_tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..] + @"\LocalDB_WPF_Kred_calc.db";
+        readonly static string connetionString = @"Data Source=" + sql_tec_kat + ";";
+        SqliteConnection connection;
+
+        public SQLiteDatabase() 
+        {
+            SqliteCommand Command;
+            string commandText;
+
+            OpenDatabase(); // открыть соединение
+            
+            // создать таблицу, если её нет
+            commandText = "CREATE TABLE IF NOT EXISTS KURS ( ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                                                            "KURS_DATE INTEGER NOT NULL, " +
+                                                            "CURR_CODE TEXT NOT NULL, " +
+                                                            "RATE REAL NOT NULL CHECK(RATE > 0), " +
+                                                            "FORC INTEGER NOT NULL CHECK(FORC > 0)" +
+                                                            ")";
+            Command = new SqliteCommand(commandText, connection);            
+            Command.ExecuteNonQuery(); // выполнить запрос
+
+            // создать индекс, если его нет
+            commandText = "CREATE UNIQUE INDEX IF NOT EXISTS UK_KURS ON KURS (KURS_DATE, CURR_CODE);";
+            Command = new SqliteCommand(commandText, connection);
+            Command.ExecuteNonQuery(); // выполнить запрос
+
+            CloseDatabase(); // закрыть соединение
+        }        
+
+        public double ReadDatabase(DateTime p_kurs_date, string p_curr_code)
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                try
+                {
+                    SqliteCommand command = new("SELECT MAX(k.RATE / k.FORC) FROM KURS k WHERE k.KURS_DATE = @kurs_date and k.CURR_CODE = @curr_code", connection);
+                    command.Parameters.Add("@kurs_date", SqliteType.Integer);
+                    command.Parameters["@kurs_date"].Value = p_kurs_date;
+                    command.Parameters.Add("@curr_code", SqliteType.Text);
+                    command.Parameters["@curr_code"].Value = p_curr_code;
+
+                    var rezult = command.ExecuteScalar();
+                    if (Convert.IsDBNull(rezult))
+                        return -1;
+
+                    command.Dispose();                 
+                    return (double)rezult;
+                }
+                catch
+                {
+                    return -1;
+                }
+            }
+            return -1;
+        }
+
+        public void WriteDatabase(DateTime p_kurs_date, string p_curr_code, double p_rate, double p_forc)
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                SqliteCommand command = new("INSERT OR IGNORE INTO KURS(kurs_date, curr_code, rate, forc) VALUES(@kurs_date, @curr_code, @rate, @forc);", connection);
+                command.Parameters.Add("@kurs_date", SqliteType.Integer);
+                command.Parameters["@kurs_date"].Value = p_kurs_date;
+                command.Parameters.Add("@curr_code", SqliteType.Text);
+                command.Parameters["@curr_code"].Value = p_curr_code;
+                command.Parameters.Add("@rate", SqliteType.Real);
+                command.Parameters["@rate"].Value = p_rate;
+                command.Parameters.Add("@forc", SqliteType.Integer);
+                command.Parameters["@forc"].Value = p_forc;
+
+                command.ExecuteNonQuery();
+                command.Dispose();
+            }
+        }
+
+        public bool OpenDatabase()
+        {
+            connection = new(connetionString);
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                    connection.Open();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void CloseDatabase()
+        {
+            if (connection.State != ConnectionState.Closed)
+                connection.Close();
+        }
     }
 
     /// <summary>
@@ -399,7 +499,7 @@ namespace WPF_Kred_calc
         public static double GetKursNbu(String mCurrCode, DateTime mDate)
         {
             String settings_data_format = "xml"; String settings_file_name = "";  String settings_url = "";
-            String settings_char_curr_code = ""; String settings_char_kurs = "";
+            String settings_char_curr_code = ""; String settings_char_kurs = "";  String settings_database = "";
             String settings_char_forc = ""; String settings_char_format_date = "";
             String mPath = tec_kat_temp;
             String mPathOut;
@@ -425,13 +525,6 @@ namespace WPF_Kred_calc
                 }*/
             }
 
-            // чтение с локальной базы данных MS SQL
-            SQLDatabase db_read = new();
-            db_read.OpenDatabase();
-            double rezult_db = db_read.ReadDatabase(mDate, mCurrCode);
-            db_read.CloseDatabase();
-            if (rezult_db != -1) return rezult_db;
-
             // ищем файл настроек
             String mPathXml_Settings = tec_kat + "\\settings.xml";
             FileInfo fileInf_Settings = new(mPathXml_Settings);
@@ -452,6 +545,10 @@ namespace WPF_Kred_calc
                         else if (xnode.Name == "char_forc") { settings_char_forc = xnode.InnerText; }
                         else if (xnode.Name == "char_format_date") { settings_char_format_date = xnode.InnerText; }
                     }
+                    foreach (XmlNode xnode in xDoc.DocumentElement.GetElementsByTagName("database").Item(0))
+                    {
+                        settings_database = xnode.InnerText;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -464,6 +561,25 @@ namespace WPF_Kred_calc
                 MessageBoxError("Ошибка !!! не найден файл настроек " + mPathXml_Settings);
                 return 1;
             }
+
+            if (settings_database == "mssql")
+            {
+                // чтение с локальной базы данных MS SQL
+                SQLDatabase db_read = new();
+                db_read.OpenDatabase();
+                double rezult_db = db_read.ReadDatabase(mDate, mCurrCode);
+                db_read.CloseDatabase();
+                if (rezult_db != -1) return rezult_db;
+            }
+            else if (settings_database == "sqlite")
+            {
+                // чтение с локальной базы данных SQLite
+                SQLiteDatabase db_read = new();
+                db_read.OpenDatabase();
+                double rezult_db = db_read.ReadDatabase(mDate, mCurrCode);
+                db_read.CloseDatabase();
+                if (rezult_db != -1) return rezult_db;
+            }                
 
             // если папка не существует, создаем
             DirectoryInfo dirInfo = new(mPath);
@@ -525,9 +641,19 @@ namespace WPF_Kred_calc
                     xDoc.Load(mPathOut);
                     XmlElement xRoot = xDoc.DocumentElement;
                     List<Currency> currencyList = new();
+                    SQLDatabase db_write = null;
+                    SQLiteDatabase db_write_sqlite = null;
 
-                    SQLDatabase db_write = new(); // инициализация - запись в локальную базу данных MS SQL
-                    db_write.OpenDatabase();
+                    if (settings_database == "mssql")
+                    {
+                        db_write = new(); // инициализация - запись в локальную базу данных MS SQL
+                        db_write.OpenDatabase();
+                    }
+                    else if (settings_database == "sqlite")
+                    {
+                        db_write_sqlite = new(); // инициализация - запись в локальную базу данных MS SQL
+                        db_write_sqlite.OpenDatabase();
+                    }
 
                     // поиск строки с курсом
                     foreach (XmlElement xnode in xRoot)
@@ -540,10 +666,26 @@ namespace WPF_Kred_calc
                             else if (childnode.Name == settings_char_curr_code) { currency.CURR_CODE = childnode.InnerText; }                            
                             currencyList.Add(currency);
                         }
-                        // запись в локальную базу данных MS SQL                                                
-                        db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                        if (settings_database == "mssql")
+                        {
+                            // запись в локальную базу данных MS SQL                                                
+                            db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                        }
+                        else if (settings_database == "sqlite")
+                        {
+                            // запись в локальную базу данных SQLite
+                            db_write_sqlite.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                        }
                     }
-                    db_write.CloseDatabase();
+
+                    if (settings_database == "mssql")
+                    {
+                        db_write.CloseDatabase();
+                    }
+                    else if (settings_database == "sqlite")
+                    {
+                        db_write_sqlite.CloseDatabase();
+                    }
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
                     // LINQ расширение
@@ -584,9 +726,19 @@ namespace WPF_Kred_calc
                     JsonDocument document = JsonDocument.Parse(JsonFile);
                     JsonElement root = document.RootElement;
                     List<Currency> currencyList = new();
-                    
-                    SQLDatabase db_write = new(); // инициализация - запись в локальную базу данных MS SQL
-                    db_write.OpenDatabase();
+                    SQLDatabase db_write = null;
+                    SQLiteDatabase db_write_sqlite = null;
+
+                    if (settings_database == "mssql")
+                    {
+                        db_write = new(); // инициализация - запись в локальную базу данных MS SQL
+                        db_write.OpenDatabase();
+                    }
+                    else if (settings_database == "sqlite")
+                    {
+                        db_write_sqlite = new(); // инициализация - запись в локальную базу данных MS SQL
+                        db_write_sqlite.OpenDatabase();
+                    }
 
                     foreach (JsonElement child in root.EnumerateArray())
                     {
@@ -605,11 +757,26 @@ namespace WPF_Kred_calc
                         }
                         currencyList.Add(currency);
 
-                        // запись в локальную базу данных MS SQL                                                
-                        db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
-                                                
+                        if (settings_database == "mssql")
+                        {
+                            // запись в локальную базу данных MS SQL                                                
+                            db_write.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                        }
+                        else if (settings_database == "sqlite")
+                        {
+                            // запись в локальную базу данных SQLite
+                            db_write_sqlite.WriteDatabase(mDate, currency.CURR_CODE, currency.RATE, currency.FORC);
+                        }
                     }
-                    db_write.CloseDatabase();
+
+                    if (settings_database == "mssql")
+                    {
+                        db_write.CloseDatabase();
+                    }
+                    else if (settings_database == "sqlite")
+                    {
+                        db_write_sqlite.CloseDatabase();
+                    }
 
                     CreateCurrencyList.WriteList(currencyList); // запись списка
                     // LINQ расширение
