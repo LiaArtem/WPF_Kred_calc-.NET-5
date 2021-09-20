@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <main>
-      <database>sqlite</database>
       <database>mssql</database>
+      <database>sqlite</database>
       <kurs_nbu>
                 <data_format>json</data_format>
                 <file_name>NBU_Exchange</file_name>

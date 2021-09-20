@@ -117,7 +117,7 @@ namespace WPF_Kred_calc
                 command.Parameters["@kurs_date"].Value = p_kurs_date;
                 command.Parameters.Add("@curr_code", SqlDbType.VarChar);
                 command.Parameters["@curr_code"].Value = p_curr_code;
-                command.Parameters.Add("@rate", SqlDbType.Float);
+                command.Parameters.Add("@rate", SqlDbType.Money);
                 command.Parameters["@rate"].Value = p_rate;
                 command.Parameters.Add("@forc", SqlDbType.Int);
                 command.Parameters["@forc"].Value = p_forc;
