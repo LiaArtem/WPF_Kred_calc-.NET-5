@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using Microsoft.Data.Sqlite;
+using System.Text;
 
 namespace WPF_Kred_calc
 {
@@ -65,13 +66,23 @@ namespace WPF_Kred_calc
     {
         private static readonly HttpClient _httpClient = new();
 
-        public static async Task<byte[]> DownloadFileAsync(string uri)
-        //public static async Task<string> DownloadFileAsync(string uri)
+        public static async Task<byte[]> DownloadFileAsyncByte(string uri)        
         {
-            byte[] fileBytes = await _httpClient.GetByteArrayAsync(uri);
-            //string file = await _httpClient.GetStringAsync(uri);
-            return fileBytes;
-            //return file;
+            byte[] fileBytes = await _httpClient.GetByteArrayAsync(uri);            
+            return fileBytes;            
+        }
+
+        public static async Task<string> DownloadFileAsyncString(string uri)
+        {
+            string file = await _httpClient.GetStringAsync(uri);
+            return file;
+        }
+
+        public static async Task<string> SetPOSTAsync(string uri, string request, Encoding enc, string content = "application/json")
+        {
+            // пример enc = Encoding.UTF8
+            var response = await _httpClient.PostAsync(uri, new StringContent(request, enc , content));            
+            return response.ToString();
         }
     }
 
@@ -399,7 +410,7 @@ namespace WPF_Kred_calc
             if (p_text == "") return p_text;
             int m_length = p_length;
             if (p_text.Length <= m_length) m_length = p_text.Length;
-            p_text = p_text.Substring(0, m_length);
+            p_text = p_text[..m_length];
             return p_text;
         }
 
@@ -611,7 +622,7 @@ namespace WPF_Kred_calc
                         fstream.Write(array, 0, array.Length);
                     }
                     */
-                    var responce = Task.Run(() => HttpHelper.DownloadFileAsync(settings_url)).Result;                     
+                    var responce = Task.Run(() => HttpHelper.DownloadFileAsyncByte(settings_url)).Result;                     
                     // запись в файл
                     using (FileStream fstream = new(mPathOut, FileMode.OpenOrCreate))
                     {
@@ -1450,7 +1461,7 @@ namespace WPF_Kred_calc
                     // учет ежемесяных
                     double m_sum_month = Dop_plat_in_month_year(summ, "%MONTH");
 
-                    int year_int = Convert.ToInt32(Get_date_month(d_date).Substring(0, 4));
+                    int year_int = Convert.ToInt32(Get_date_month(d_date)[..4]);
                     if (year_int % 2 == 0) mTColorType = "MistyRose";
                     else mTColorType = "AliceBlue";
 
@@ -1666,7 +1677,7 @@ namespace WPF_Kred_calc
                 {
                     if (mass_num[2, i - 1] == 0) { break; }
 
-                    int year_int = Convert.ToInt32(mass_date[i - 1].Substring(0, 4));
+                    int year_int = Convert.ToInt32(mass_date[i - 1][..4]);
                     if (year_int % 2 == 0) mTColorType = "MistyRose";
                     else mTColorType = "AliceBlue";
 
@@ -1855,7 +1866,7 @@ namespace WPF_Kred_calc
                 {
                     if (mass_num[2, i - 1] == 0) { break; }
 
-                    int year_int = Convert.ToInt32(mass_date[i - 1].Substring(0, 4));
+                    int year_int = Convert.ToInt32(mass_date[i - 1][..4]);
                     if (year_int % 2 == 0)  mTColorType = "MistyRose";
                     else mTColorType = "AliceBlue";
 
