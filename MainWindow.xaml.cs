@@ -88,7 +88,7 @@ namespace WPF_Kred_calc
 
     public class SQLDatabase
     {
-        readonly static string sql_tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..] + @"\LocalDB_WPF_Kred_calc.mdf";
+        readonly static string sql_tec_kat = System.Environment.CurrentDirectory + @"\LocalDB_WPF_Kred_calc.mdf";
         readonly static string connetionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + sql_tec_kat + "; Integrated Security=True";
         SqlConnection connection;
 
@@ -162,7 +162,7 @@ namespace WPF_Kred_calc
 
     public class SQLiteDatabase
     {
-        readonly static string sql_tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..] + @"\LocalDB_WPF_Kred_calc.db";
+        readonly static string sql_tec_kat = System.Environment.CurrentDirectory + @"\LocalDB_WPF_Kred_calc.db";
         readonly static string connetionString = @"Data Source=" + sql_tec_kat + ";";
         SqliteConnection connection;
 
@@ -266,9 +266,9 @@ namespace WPF_Kred_calc
     {        
         static String[] file_path_ini_mas, type_ini_mas;
         static Boolean is_program_loading = true;
-        static readonly String tec_kat = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)[6..]; //[6..] вместо .Substring(6)
-        static readonly String tec_kat_ini = tec_kat + "\\" + "ini" + "\\";
-        static readonly String tec_kat_temp = tec_kat + "\\" + "temp";
+        static readonly String tec_kat = System.Environment.CurrentDirectory;
+        static readonly String tec_kat_ini = tec_kat + Path.DirectorySeparatorChar + "ini" + Path.DirectorySeparatorChar;
+        static readonly String tec_kat_temp = tec_kat + Path.DirectorySeparatorChar + "temp";
         public ObservableCollection<string> list = new();
 
         public MainWindow()
@@ -322,7 +322,7 @@ namespace WPF_Kred_calc
         private void TextBox_PreviewTextInput_Float(object sender, TextCompositionEventArgs e)
         {
             string inputSymbol = e.Text.ToString(); // можно вводить цифры и точку
-            if (!Regex.Match(inputSymbol, @"[0-9]|\.").Success)
+            if (!RegexFloat().Match(inputSymbol).Success)
             {
                 e.Handled = true;
             }
@@ -330,7 +330,7 @@ namespace WPF_Kred_calc
         private void TextBox_PreviewTextInput_Int(object sender, TextCompositionEventArgs e)
         {
             string inputSymbol = e.Text.ToString(); // можно вводить цифры
-            if (!Regex.Match(inputSymbol, @"[0-9]").Success)
+            if (!RegexInt().Match(inputSymbol).Success)
             {
                 e.Handled = true;
             }
@@ -1913,5 +1913,11 @@ namespace WPF_Kred_calc
             }
             ///////////////////////
         }
+
+        [GeneratedRegex("[0-9]")]
+        private static partial Regex RegexInt();
+
+        [GeneratedRegex("[0-9]|\\.")]
+        private static partial Regex RegexFloat();
     }
 }
