@@ -1664,7 +1664,7 @@ namespace WPF_Kred_calc
                     // +1 месяц
                     d_date = d_date.AddMonths(1);
                     n_pr += pr;
-                    n_ob = n_ob + calc_sum_cred + pr + m_sum_one + sum_pereplata;
+                    n_ob = n_ob + calc_sum_cred + pr + m_sum_one + sum_pereplata + sum_year + sum_month;
                     n_cred += calc_sum_cred;
                     n_perepl += sum_pereplata;
                     summ_dop = summ_dop + m_sum_one + sum_year + sum_month;
@@ -1853,7 +1853,7 @@ namespace WPF_Kred_calc
                     // +1 месяц
                     d_date = d_date.AddMonths(1);
                     n_pr += pr;
-                    n_ob = n_ob + calc_sum_cred + pr + m_sum_one + sum_pereplata;
+                    n_ob = n_ob + calc_sum_cred + pr + m_sum_one + sum_pereplata + sum_year + sum_month;
                     n_cred += calc_sum_cred;
                     n_perepl += sum_pereplata;
                     summ_dop = summ_dop + m_sum_one + sum_year + sum_month;
