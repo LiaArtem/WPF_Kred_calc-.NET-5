@@ -15,10 +15,10 @@ using System.Text.Json;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
 using System.Data;
 using Microsoft.Data.Sqlite;
 using System.Text;
+using Microsoft.Data.SqlClient;
 
 namespace WPF_Kred_calc
 {
@@ -729,7 +729,7 @@ namespace WPF_Kred_calc
                         // преобразуем строку в байты
                         byte[] array = new byte[fs.Length];
                         // считываем данные
-                        fs.Read(array, 0, array.Length);
+                        fs.ReadExactly(array);
                         // декодируем байты в строку
                         JsonFile = System.Text.Encoding.Default.GetString(array);
                     }
